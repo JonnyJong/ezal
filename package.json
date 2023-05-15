@@ -8,6 +8,10 @@
     "serve": "node ./dist/main.js serve",
     "clean": "node ./dist/main.js clean"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JonnyJong/ezal.git"
+  },
   "keywords": [
     "blog"
   ],

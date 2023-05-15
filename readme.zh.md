@@ -1,26 +1,26 @@
 # Ezal
-Simple blog framework.
+简单的博客框架。
 
-[简体中文](https://github.com/JonnyJong/ezal/blob/main/readme.zh.md)
+[English](https://github.com/JonnyJong/ezal/blob/main/readme.md)
 
-## Todo
-- [ ] Markdown Renderer
-- [ ] Plugin System
-  - [ ] Typescript support
-- [ ] Remake category function
-- [ ] Improve server mode
-- [ ] Improve build process
-- [ ]  Theme support
-- [ ] Document
+## 待办事项
+- [ ] Markdown 渲染器
+- [ ] 插件系统
+  - [ ] 支持 Typescript
+- [ ] 重做分类功能
+- [ ] 改进服务器模式
+- [ ] 改进构建过程
+- [ ] 主题支持
+- [ ] 文档
 
-## Use
-Install Ezal.
+## 使用
+安装 Ezal。
 ```bash
 npm init
 npm install --save ezal
 ```
 
-Add in `package.json`.
+添加到 `package.json`。
 ```json package.json
 {
   "scripts": {
@@ -32,14 +32,14 @@ Add in `package.json`.
 }
 ```
 
-Init the project.
+初始化项目。
 ```bash
 npm run init
 ```
 
-Done.
+完成。
 
-## Build
+## 构建
 ```bash
 npm install
 npm install -g typescript
@@ -47,12 +47,12 @@ tsc
 npm run build
 ```
 
-## Run
+## 运行
 ```bash
 npm run serve
 ```
 
-## Clean
+## 清理
 ```bash
 npm run clean
 ```

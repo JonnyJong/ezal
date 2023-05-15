@@ -9,6 +9,7 @@ import { copyAssets } from "./assets";
 import clean from "./clean";
 import Watcher from "./watch";
 import { startServer, stopServer } from "./serve";
+import init from "./init";
 
 let config: any;
 
@@ -45,14 +46,7 @@ async function build() {
   info('Done!');
 }
 
-check().then(()=>{
-  if (!process.argv.includes('clean')) return;
-  info('Cleaning...');
-  clean()
-  if (!process.argv.includes('serve') && !process.argv.includes('build')) process.exit();
-  return
-}).then(build).then(()=>{
-  if (!process.argv.includes('serve')) return;
+function serve() {
   let watcher = new Watcher(copyAssets, async (event: 'add'|'addDir'|'change'|'unlink'|'unlinkDir')=>{
     if (event.includes('Dir')) return;
     await generateAll(Array.from(pages));
@@ -115,9 +109,20 @@ check().then(()=>{
   process.on('SIGINT', async ()=>{
     stopServer();
     await watcher.close();
-  })
+  });
   process.on('exit', async ()=>{
     stopServer();
     await watcher.close();
-  })
-});
+  });
+}
+
+if (process.execArgv.includes('clean')) {
+  info('Cleaning...');
+  clean();
+}else if (process.execArgv.includes('serve')) {
+  check().then(build).then(serve);
+}else if (process.execArgv.includes('init')) {
+  check().then(build);
+}else{
+  init();
+}
