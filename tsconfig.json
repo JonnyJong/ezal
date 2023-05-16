@@ -14,12 +14,9 @@
     "resolveJsonModule": true,
     "watch": true
   },
-  "include": ["./modules/**/*"],
+  "include": ["./source/**/*"],
   "exclude": [
     "node_modules",
     "dist",
-    "./modules/types",
-    "assets",
-    "out",
   ]
 }

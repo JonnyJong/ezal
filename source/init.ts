@@ -12,8 +12,8 @@ const dirs = [
   'scripts/post-generate',
   'scripts/post-render',
   'scripts/pre-render',
-  'source/pages',
-  'source/posts',
+  'pages',
+  'posts',
   'style',
   'template',
 ];

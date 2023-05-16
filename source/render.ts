@@ -1,5 +1,7 @@
 type Page = import('./page').Page;
 type Post = import('./page').Post;
+type Renderers = import('../types/renderer').Renderers
+type Renderer = import('../types/renderer').Renderer
 import { readdir } from "fs/promises";
 import { marked } from "marked";
 import path from "path";
@@ -37,8 +39,43 @@ function renderAll(pages: Set<Page | Post>) {
   return pages.forEach(render);
 }
 
+let renderers: Renderers = {
+  block: [],
+  line: [],
+  inline: [],
+}
+
+function addRenderer(type: 'block' | 'line' | 'inline', renderer: Renderer) {
+  let index = renderers[type].findIndex((oldRenderer)=>oldRenderer.name === renderer.name);
+  if (index === -1) {
+    // @ts-ignore
+    renderers[type].push(renderer);
+    return;
+  }
+  if ((renderers[type][index].priority || 0) <= (renderer.priority || 0)) {
+    renderers[type][index] = renderer;
+  }
+}
+
+async function loadRenderers(dir: string) {
+  let renderers = await readdir(dir);
+  for (let i = 0; i < renderers.length; i++) {
+    let importRenderers: Renderers = require(path.join(dir, path.basename(renderers[i])));
+    importRenderers.block.forEach((renderer)=>addRenderer('block', renderer));
+    importRenderers.line.forEach((renderer)=>addRenderer('line', renderer));
+    importRenderers.inline.forEach((renderer)=>addRenderer('inline', renderer));
+  }
+  return
+}
+
+async function initRenderer(themeDir: string) {
+  loadRenderers(path.join(__dirname, './renderer/'));
+  loadRenderers(path.join(themeDir, './scripts/renderer/'));
+}
+
 export{
   initMarked,
   render,
   renderAll,
+  initRenderer,
 };

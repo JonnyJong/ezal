@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "",
   "main": "./dist/main.js",
+  "types": "./index.d.ts",
   "scripts": {
     "build": "node ./dist/main.js",
     "serve": "node ./dist/main.js serve",
