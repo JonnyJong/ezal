@@ -3,19 +3,24 @@ import path from "path";
 
 export default class Watcher{
   assetsWatcher: FSWatcher;
+  themeAssetsWatcher: FSWatcher;
   layoutWatcher: FSWatcher;
   pageWatcher: FSWatcher;
   postWatcher: FSWatcher;
   styleWatcher: FSWatcher;
-  constructor(assets: Function, layout: Function, page: Function, post: Function, style: Function){
+  constructor(themeName: string, assets: Function, layout: Function, page: Function, post: Function, style: Function){
     this.assetsWatcher = watch(path.join(process.cwd(), 'assets'));
-    this.layoutWatcher = watch(path.join(process.cwd(), 'assets'));
-    this.pageWatcher = watch(path.join(process.cwd(), 'assets'));
-    this.postWatcher = watch(path.join(process.cwd(), 'assets'));
-    this.styleWatcher = watch(path.join(process.cwd(), 'assets'));
+    this.themeAssetsWatcher = watch(path.join(process.cwd(), 'themes', themeName, 'assets'));
+    this.layoutWatcher = watch(path.join(process.cwd(), 'themes', themeName, 'layout'));
+    this.pageWatcher = watch(path.join(process.cwd(), 'pages'));
+    this.postWatcher = watch(path.join(process.cwd(), 'posts'));
+    this.styleWatcher = watch(path.join(process.cwd(), 'themes', themeName, 'style'));
     
     this.assetsWatcher.on('ready',()=>{
       this.assetsWatcher.on('all', ()=>assets())
+    })
+    this.themeAssetsWatcher.on('ready',()=>{
+      this.themeAssetsWatcher.on('all', ()=>assets())
     })
     this.layoutWatcher.on('ready',()=>{
       this.layoutWatcher.on('all', (...args)=>layout(...args))
@@ -33,6 +38,7 @@ export default class Watcher{
   close(){
     return Promise.all([
       this.assetsWatcher.close(),
+      this.themeAssetsWatcher.close(),
       this.layoutWatcher.close(),
       this.pageWatcher.close(),
       this.postWatcher.close(),

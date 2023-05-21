@@ -1,4 +1,4 @@
-import { defaultConfig } from "ezal/source/config";
+import { defaultConfig } from "./config";
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 

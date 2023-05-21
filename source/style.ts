@@ -1,15 +1,15 @@
 import { readdirSync } from "fs";
-import { readFile, readdir, writeFile } from "fs/promises";
+import { access, mkdir, readFile, readdir, writeFile } from "fs/promises";
 import path from "path";
 import stylus from "stylus";
 
-const styleBase = path.join(process.cwd(), 'style')
+let styleBase: string;
 
 function readFiles(dir: string) {
   let result: Array<string> = [];
   readdirSync(dir, { withFileTypes: true }).forEach((dirent)=>{
-    if (dirent.name.indexOf('_') !== 0) return;
-    if (dirent.isFile() && path.extname(dirent.name) === '.stylus') {
+    if (dirent.name.indexOf('_') === 0) return;
+    if (dirent.isFile() && path.extname(dirent.name) === '.styl') {
       result.push(path.join(dir, dirent.name));
     }else if (dirent.isDirectory()) {
       result = result.concat(readFiles(path.join(dir, dirent.name)));
@@ -22,6 +22,7 @@ let globalOptions: any;
 let options: any = {};
 let themePath: string;
 function initStylus(option: any, themeDir: string) {
+  styleBase = path.join(themeDir, 'style');
   globalOptions = option;
   themePath = themeDir
   return readdir(path.join(themePath, 'plugin/stylus'), { withFileTypes: true }).then((files)=>{
@@ -44,7 +45,9 @@ async function generateStyle() {
       filename: path.basename(files[i]),
       globals: Object.assign(globalOptions, options),
     });
-    await writeFile(path.join(process.cwd(), 'out/style', files[i].replace(styleBase, '')), cssContext, 'utf8');
+    await access(path.join(process.cwd(), 'out/style', path.dirname(files[i].replace(styleBase, ''))))
+    .catch(()=>mkdir(path.join(process.cwd(), 'out/style', path.dirname(files[i].replace(styleBase, ''))), { recursive: true }));
+    await writeFile(path.join(process.cwd(), 'out/style', path.dirname(files[i].replace(styleBase, '')), path.parse(files[i].replace(styleBase, '')).name + '.css'), cssContext, 'utf8');
   }
 }
 

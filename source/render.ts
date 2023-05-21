@@ -4,6 +4,11 @@ import { access, readdir } from "fs/promises";
 import { marked } from "marked";
 import path from "path";
 import hljs from "highlight.js";
+import { markedHighlight } from "marked-highlight";
+// @ts-ignore
+import { mangle } from "marked-mangle";
+// @ts-ignore
+import { gfmHeadingId } from "marked-gfm-heading-id";
 
 async function initMarked(options: any, themePath: string) {
   let files = await readdir(path.join(themePath, 'plugin/marked'), { withFileTypes: true })
@@ -26,13 +31,21 @@ async function initMarked(options: any, themePath: string) {
     gfm: true,
     // @ts-ignore
     tables: true,
-    langPrefix: 'lang-',
-    // todo: check .split('%')[0] do for what
-    highlight: themeHljsAccessable ? themeHljs : (code, lang)=>hljs.highlightAuto(code, [lang.split('%')[0]]).value,
   });
   marked.use({
     extensions: plugins,
   });
+  marked.use(themeHljsAccessable ? themeHljs : markedHighlight({
+    langPrefix: 'hljs language-',
+    async: true,
+    highlight(code, lang) {
+      return hljs.highlightAuto(code, [lang]).value;
+    },
+  }));
+  marked.use(mangle());
+  marked.use(gfmHeadingId({
+    perfix: '',
+  }));
 }
 async function render(page: Page | Post) {
   page.context = await marked(page.source);

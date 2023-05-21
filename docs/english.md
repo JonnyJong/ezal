@@ -62,7 +62,7 @@ Applies to all script files except `plugin/highlight.js`.
 
 Example:
 ```js plugin/
-module.exports = ({config, theme, pages, posts, categroies, tags, Page, Post})=>{
+module.exports = ({config, theme, pages, posts, categories, tags, Page, Post})=>{
   // Configuration parameters from config.yml
   config;
   // Configuration parameters of the theme
@@ -71,8 +71,8 @@ module.exports = ({config, theme, pages, posts, categroies, tags, Page, Post})=>
   pages;
   // All articles
   posts;
-  // Categroies
-  categroies;
+  // categories
+  categories;
   // Tags
   tags;
   // Create a new page

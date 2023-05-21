@@ -62,7 +62,7 @@ module.exports = (code, lang)=>hljs.highlightAuto(code, [lang.split('%')[0]]).va
 
 示例：
 ```js plugin/
-module.exports = ({config, theme, pages, posts, categroies, tags, Page, Post})=>{
+module.exports = ({config, theme, pages, posts, categories, tags, Page, Post})=>{
   // 来自 config.yml 的配置参数
   config;
   // 主题的配置参数
@@ -72,7 +72,7 @@ module.exports = ({config, theme, pages, posts, categroies, tags, Page, Post})=>
   // 所有文章
   posts;
   // 归类
-  categroies;
+  categories;
   // 标签
   tags;
   // 创建新的页面

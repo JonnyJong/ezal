@@ -4,57 +4,56 @@ import { readFile } from "fs/promises";
 import path from "path";
 import { parse } from "yaml";
 
-const pageBase = path.join(process.cwd(), 'source/pages')
-const postBase = path.join(process.cwd(), 'source/posts')
-const frontMatterReg = [/---\n(.*?)\n---/sg, /(.*?)\n---/sg]
+const pageBase = path.join(process.cwd(), 'pages');
+const postBase = path.join(process.cwd(), 'posts');
 
-const pageKeys = ['path', 'title', 'date', 'updated', 'layout', 'source', 'context', 'constructor', 'update', 'remove']
-const postKeys = ['path', 'title', 'date', 'updated', 'layout', 'source', 'context', 'constructor', 'update', 'addTag', 'removeTag', 'addCategory', 'removeCategory', 'remove']
+const pageKeys = ['path', 'title', 'date', 'updated', 'layout', 'source', 'context', 'constructor', 'update', 'remove'];
+const postKeys = ['path', 'title', 'date', 'updated', 'layout', 'source', 'context', 'constructor', 'update', 'addTag', 'removeTag', 'addcategory', 'removecategory', 'remove', 'tags', 'categories'];
 
 let pages: Set<Page> = new Set();
 let posts: Set<Post> = new Set();
-let categroies: Map<string, Set<Post>> = new Map();
-// let categroies: Set<Category> = new Set();
+let categories: Map<string, Set<Post>> = new Map();
+// let categories: Set<category> = new Set();
 let tags: Map<string, Set<Post>> = new Map();
 
-/* class Category{
+/* class category{
   name: string;
   posts: Set<Post> = new Set();
-  parent: Category | null = null;
-  children: Set<Category> = new Set();
-  constructor(name: string, parent: Category | null){
-    Category._checkName(name, parent);
+  parent: category | null = null;
+  children: Set<category> = new Set();
+  constructor(name: string, parent: category | null){
+    category._checkName(name, parent);
     this.name = name;
     if (parent) {
       this.parent = parent;
       this.parent.addChild(this);
     }else{
-      categroies.add(this);
+      categories.add(this);
     }
   }
-  addChild(child: Category){
-    Category._checkName(child.name, this)
-    categroies.delete(child);
+  addChild(child: category){
+    category._checkName(child.name, this)
+    categories.delete(child);
     this.children.add(child);
     if (child.parent) {
       child.parent.children.delete(child);
     }
     child.parent = this;
   }
-  setParent(parent: Category){
-    Category._checkName(this.name, parent)
+  setParent(parent: category){
+    category._checkName(this.name, parent)
     if (this.parent) {
       this.parent.children.delete(this);
       this.parent = parent;
       this.parent.children.add(this);
     }else{
-      categroies.delete(this);
+      categories.delete(this);
       this.parent = parent;
       this.parent.children.add(this);
     }
   }
   removeParent(){
-    Category._checkName(this.name, null)
+    category._checkName(this.name, null)
     if (this.parent) {
       this.parent.children.delete(this);
       this.parent = null;
@@ -64,32 +63,32 @@ let tags: Map<string, Set<Post>> = new Map();
     if (this.parent) {
       this.parent.children.delete(this);
     }else{
-      categroies.delete(this)
+      categories.delete(this)
     }
     this.posts.forEach((post)=>{
-      post.categroies.delete(this)
+      post.categories.delete(this)
     })
   }
   addPost(post: Post){
     this.posts.add(post)
-    post.categroies.add(this)
+    post.categories.add(this)
   }
   removePost(post: Post){
     this.posts.delete(post)
-    post.categroies.delete(this)
+    post.categories.delete(this)
   }
   setName(name: string){
-    Category._checkName(name, this.parent)
+    category._checkName(name, this.parent)
     this.name = name
   }
-  static _checkName(name: string, range: Category | null){
+  static _checkName(name: string, range: category | null){
     let checked = true
     if (range) {
       range.children.forEach((category)=>{
         if (category.name === name) checked = false
       })
     }else{
-      categroies.forEach((category)=>{
+      categories.forEach((category)=>{
         if (category.name === name) checked = false
       })
     }
@@ -98,6 +97,28 @@ let tags: Map<string, Set<Post>> = new Map();
     }
   }
 } */
+
+function getFrontMatter(source: string) {
+  try {
+    let splited = source.split('---\n');
+    if (source.indexOf('---') === 0) {
+      return {
+        frontMatter: parse(splited[1]),
+        clearSource: splited.slice(2, splited.length).join('---\n'),
+      };
+    }else{
+      return {
+        frontMatter: parse(splited[0]),
+        clearSource: splited.slice(1, splited.length).join('---\n'),
+      };
+    }
+  } catch {
+    return {
+      frontMatter: {},
+      clearSource: source,
+    };
+  }
+}
 
 class Page{
   path: string;
@@ -115,15 +136,9 @@ class Page{
   update(source: string){
     this.remove();
     this.url = this.path.replace(pageBase, '');
+    this.url = path.join(path.dirname(this.url), path.parse(this.url).name);
     // ready front matter
-    let frontMatter;
-    let frontMatterResult = frontMatterReg[0].exec(source);
-    if (!frontMatterResult) frontMatterResult = frontMatterReg[1].exec(source);
-    if (frontMatterResult) {
-      frontMatter = parse(frontMatterResult[1]);
-    } else {
-      frontMatter = {};
-    }
+    let { frontMatter, clearSource } = getFrontMatter(source);
     frontMatter = Object.assign({
       date: Date.now(),
       updated: Date.now(),
@@ -147,11 +162,7 @@ class Page{
       }
     }
     // set source
-    if (frontMatterResult) {
-      this.source = source.replace(frontMatterResult[0], '');
-    }else{
-      this.source = source;
-    }
+    this.source = clearSource;
     pages.add(this);
   }
   remove(){
@@ -170,8 +181,8 @@ class Post{
   date: Date = new Date();
   updated: Date = new Date();
   layout: string = 'post';
-  categroies: Set<string> = new Set();
-  // categroies: Set<Category> = new Set();
+  categories: Set<string> = new Set();
+  // categories: Set<category> = new Set();
   tags: Set<string> = new Set();
   source: string = '';
   context: string = '';
@@ -182,15 +193,9 @@ class Post{
   update(source: string){
     this.remove();
     this.url = this.path.replace(postBase, 'posts');
+    this.url = path.join(path.dirname(this.url), path.parse(this.url).name);
     // ready front matter
-    let frontMatter;
-    let frontMatterResult = frontMatterReg[0].exec(source);
-    if (!frontMatterResult) frontMatterResult = frontMatterReg[1].exec(source);
-    if (frontMatterResult) {
-      frontMatter = parse(frontMatterResult[1]);
-    } else {
-      frontMatter = {};
-    }
+    let { frontMatter, clearSource } = getFrontMatter(source);
     frontMatter = Object.assign({
       date: Date.now(),
       updated: Date.now(),
@@ -219,14 +224,14 @@ class Post{
         }
         break;
     }
-    switch (typeof frontMatter.categroies) {
+    switch (typeof frontMatter.categories) {
       case 'string':
-        this.addCategory(frontMatter.categroies);
+        this.addcategory(frontMatter.categories);
         break;
       case 'object':
-        if (frontMatter.categroies instanceof Array) {
-          frontMatter.categroies.forEach((tag: any)=>{
-            if (typeof tag === 'string') this.addCategory(tag);
+        if (frontMatter.categories instanceof Array) {
+          frontMatter.categories.forEach((tag: any)=>{
+            if (typeof tag === 'string') this.addcategory(tag);
           });
         }
         break;
@@ -238,11 +243,7 @@ class Post{
       }
     }
     // set source
-    if (frontMatterResult) {
-      this.source = source.replace(frontMatterResult[0], '');
-    }else{
-      this.source = source;
-    }
+    this.source = clearSource;
     posts.add(this);
   }
   addTag(name: string){
@@ -259,24 +260,24 @@ class Post{
       tags.get(name)?.delete(this);
     }
   }
-  addCategory(name: string){
-    this.categroies.add(name);
-    if (categroies.has(name)) {
-      categroies.get(name)?.add(this);
+  addcategory(name: string){
+    this.categories.add(name);
+    if (categories.has(name)) {
+      categories.get(name)?.add(this);
     }else{
-      categroies.set(name, new Set([this]));
+      categories.set(name, new Set([this]));
     }
   }
-  removeCategory(name: string){
-    if (categroies.has(name)) {
-      this.categroies.delete(name);
-      categroies.get(name)?.delete(this);
+  removecategory(name: string){
+    if (categories.has(name)) {
+      this.categories.delete(name);
+      categories.get(name)?.delete(this);
     }
   }
   remove(){
     posts.delete(this);
     this.tags.forEach(this.removeTag);
-    this.categroies.forEach(this.removeCategory);
+    this.categories.forEach(this.removecategory);
     for (const key in this) {
       if (Object.prototype.hasOwnProperty.call(this, key) && !postKeys.includes(key)) {
         delete this[key];
@@ -288,7 +289,7 @@ class Post{
 function readFiles(dir: string) {
   let result: Array<string> = [];
   readdirSync(dir, { withFileTypes: true }).forEach((dirent)=>{
-    if (dirent.name.indexOf('_') !== 0) return;
+    if (dirent.name.indexOf('_') === 0) return;
     if (dirent.isFile() && path.extname(dirent.name) === '.md') {
       result.push(path.join(dir, dirent.name));
     }else if (dirent.isDirectory()) {
@@ -296,46 +297,34 @@ function readFiles(dir: string) {
     }
   })
   return result;
-  /* let result: Array<string | Promise<any>> = []
-  return readdir(dir, { withFileTypes: true }).then((files)=>{
-    files.forEach((dirent)=>{
-      if (dirent.isFile()) {
-        result.push(path.join(dir, dirent.name));
-      }else if (dirent.isDirectory()){
-        result = result.concat(readFiles(path.join(dir, dirent.name)));
-      }
-    });
-  }).then(()=>{
-    return Promise.all(result);
-  }); */
 }
 function readPage(path: string, type: 'page' | 'post') {
   return readFile(path, 'utf-8').catch(()=>{
     error(`Cannot read ${path}`);
     throw 'Cannot read';
   }).then((source)=>{
-    let result
+    let result;
     if (type === 'page') {
-      result = new Page(path, source)
+      result = new Page(path, source.replace(/\r\n/g, '\n'));
     }else{
-      result = new Post(path, source)
+      result = new Post(path, source.replace(/\r\n/g, '\n'));
     }
-    return result
-  }).catch(()=>null)
+    return result;
+  }).catch((err)=>null);
 }
 async function readPosts() {
-  let files = readFiles(path.join(process.cwd(), 'source/posts'))
+  let files = readFiles(path.join(process.cwd(), 'posts'));
   for (let i = 0; i < files.length; i++) {
-    await readPage(files[i], 'post')
+    await readPage(files[i], 'post');
   }
-  return posts
+  return posts;
 }
 async function readPages() {
-  let files = readFiles(path.join(process.cwd(), 'source/pages'))
+  let files = readFiles(path.join(process.cwd(), 'pages'));
   for (let i = 0; i < files.length; i++) {
-    await readPage(files[i], 'page')
+    await readPage(files[i], 'page');
   }
-  return pages
+  return pages;
 }
 function updatePage(page: Page | Post) {
   return readFile(page.path, 'utf-8').catch(()=>{
@@ -344,13 +333,13 @@ function updatePage(page: Page | Post) {
   }).then((source)=>{
     page.update(source);
     return page;
-  }).catch(()=>null)
+  }).catch(()=>null);
 }
 
 export {
   pages,
   posts,
-  categroies,
+  categories,
   tags,
   readPosts,
   readPages,

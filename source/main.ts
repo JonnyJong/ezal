@@ -1,9 +1,9 @@
 import { info } from "./console";
 import readConfig, { checkConfig, checkThemeConfig, readThemeConfig } from "./config";
-import { readPages, readPosts, pages, posts, categroies, tags, Page, Post, updatePage, readPage } from "./page";
+import { readPages, readPosts, pages, posts, categories, tags, Page, Post, updatePage, readPage } from "./page";
 import { initEvents, triggerListeners } from "./event";
 import { initMarked, render, renderAll } from "./render";
-import { generate, generateAll } from "./generate";
+import { generate, generateAll, initPug } from "./generate";
 import { generateStyle, initStylus } from "./style";
 import { copyAssets } from "./assets";
 import clean from "./clean";
@@ -14,7 +14,7 @@ import path from "path";
 
 let config: any;
 
-let options = {config: {}, pages, posts, categroies, tags, Page, Post, theme: {}}
+let options = {config: {}, pages, posts, categories, tags, Page, Post, theme: {}}
 
 async function check() {
   let startStamp = Date.now()
@@ -26,7 +26,8 @@ async function check() {
   let themeConfig = await readThemeConfig(config.theme);
   options.config = config;
   options.theme = themeConfig;
-  let themePath = path.join(process.cwd(), config.theme);
+  let themePath = path.join(process.cwd(), 'themes', config.theme);
+  await initPug(options, themePath);
   await initMarked(options, themePath);
   await initStylus(options, themePath);
   await initEvents(options, themePath);
@@ -53,7 +54,7 @@ async function build() {
 }
 
 function serve() {
-  let watcher = new Watcher(()=>copyAssets(config.theme), async (event: 'add'|'addDir'|'change'|'unlink'|'unlinkDir')=>{
+  let watcher = new Watcher(config.theme, ()=>copyAssets(config.theme), async (event: 'add'|'addDir'|'change'|'unlink'|'unlinkDir')=>{
     if (event.includes('Dir')) return;
     await generateAll(Array.from(pages));
     await generateAll(Array.from(posts));
@@ -122,13 +123,13 @@ function serve() {
   });
 }
 
-if (process.execArgv.includes('clean')) {
+if (process.argv.includes('clean')) {
   info('Cleaning...');
   clean();
-}else if (process.execArgv.includes('serve')) {
+}else if (process.argv.includes('serve')) {
   check().then(build).then(serve);
-}else if (process.execArgv.includes('init')) {
-  check().then(build);
-}else{
+}else if (process.argv.includes('init')) {
   init();
+}else{
+  check().then(build);
 }
