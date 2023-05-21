@@ -20,21 +20,23 @@ function readFiles(dir: string) {
 
 let globalOptions: any;
 let options: any = {};
-function initStylus(option: any) {
+let themePath: string;
+function initStylus(option: any, themeDir: string) {
   globalOptions = option;
-  return readdir(path.join(process.cwd(), 'plugin/stylus'), { withFileTypes: true }).then((files)=>{
+  themePath = themeDir
+  return readdir(path.join(themePath, 'plugin/stylus'), { withFileTypes: true }).then((files)=>{
     let added: Set<string> = new Set();
     let options: any[] = [];
     files.forEach((dirent)=>{
       if (dirent.isFile() && ['.js', '.node'].includes(path.extname(dirent.name)) && !added.has(path.parse(dirent.name).name)) {
         added.add(path.parse(dirent.name).name);
-        options = Object.assign(option, require(path.join(process.cwd(), 'plugin/stylus', path.parse(dirent.name).name))(options));
+        options = Object.assign(option, require(path.join(themePath, 'plugin/stylus', path.parse(dirent.name).name))(options));
       }
     });
   });
 }
 async function generateStyle() {
-  let files = readFiles(path.join(process.cwd(), 'style'));
+  let files = readFiles(path.join(themePath, 'style'));
   for (let i = 0; i < files.length; i++) {
     let stylusContext = await readFile(files[i], 'utf-8')
     let cssContext = await stylus.render(stylusContext, {

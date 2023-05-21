@@ -4,13 +4,13 @@ Simple blog framework.
 [简体中文](https://github.com/JonnyJong/ezal/blob/main/readme.zh.md)
 
 ## Todo
-- [ ] Markdown Renderer
+- [x] Markdown Renderer
 - [ ] Plugin System
   - [ ] Typescript support
 - [ ] Remake category function
 - [ ] Improve server mode
 - [ ] Improve build process
-- [ ]  Theme support
+- [x] Theme support
 - [ ] Document
 
 ## Use
@@ -44,7 +44,6 @@ Done.
 npm install
 npm install -g typescript
 tsc
-npm run build
 ```
 
 ## Run

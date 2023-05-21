@@ -4,13 +4,13 @@
 [English](https://github.com/JonnyJong/ezal/blob/main/readme.md)
 
 ## 待办事项
-- [ ] Markdown 渲染器
+- [x] Markdown 渲染器
 - [ ] 插件系统
   - [ ] 支持 Typescript
 - [ ] 重做分类功能
 - [ ] 改进服务器模式
 - [ ] 改进构建过程
-- [ ] 主题支持
+- [x] 主题支持
 - [ ] 文档
 
 ## 使用
@@ -44,7 +44,6 @@ npm run init
 npm install
 npm install -g typescript
 tsc
-npm run build
 ```
 
 ## 运行

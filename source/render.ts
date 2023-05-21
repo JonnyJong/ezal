@@ -1,23 +1,22 @@
 type Page = import('./page').Page;
 type Post = import('./page').Post;
-type Renderers = import('../types/renderer').Renderers
-type Renderer = import('../types/renderer').Renderer
 import { readdir } from "fs/promises";
 import { marked } from "marked";
 import path from "path";
 import hljs from "highlight.js";
 
-function initMarked(options: any) {
-  return readdir(path.join(process.cwd(), 'plugin/marked'), { withFileTypes: true }).then((files)=>{
+function initMarked(options: any, themePath: string) {
+  return readdir(path.join(themePath, 'plugin/marked'), { withFileTypes: true }).then((files)=>{
     let added: Set<string> = new Set();
     let plugins: any[] = [];
     files.forEach((dirent)=>{
       if (dirent.isFile() && ['.js', '.node'].includes(path.extname(dirent.name)) && !added.has(path.parse(dirent.name).name)) {
         added.add(path.parse(dirent.name).name);
-        plugins.push(require(path.join(process.cwd(), 'plugin/marked', path.parse(dirent.name).name))(options));
+        plugins.push(require(path.join(themePath, 'plugin/marked', path.parse(dirent.name).name))(options));
       }
     });
     marked.setOptions({
+      async: true,
       breaks: true,
       gfm: true,
       // @ts-ignore
@@ -31,51 +30,19 @@ function initMarked(options: any) {
     });
   });
 }
-function render(page: Page | Post) {
-  page.context = marked(page.source);
+async function render(page: Page | Post) {
+  page.context = await marked(page.source);
   return page;
 }
-function renderAll(pages: Set<Page | Post>) {
-  return pages.forEach(render);
-}
-
-let renderers: Renderers = {
-  block: [],
-  line: [],
-  inline: [],
-}
-
-function addRenderer(type: 'block' | 'line' | 'inline', renderer: Renderer) {
-  let index = renderers[type].findIndex((oldRenderer)=>oldRenderer.name === renderer.name);
-  if (index === -1) {
-    // @ts-ignore
-    renderers[type].push(renderer);
-    return;
+async function renderAll(pages: Array<Page | Post>) {
+  for (let i = 0; i < pages.length; i++) {
+    await render(pages[i]);
   }
-  if ((renderers[type][index].priority || 0) <= (renderer.priority || 0)) {
-    renderers[type][index] = renderer;
-  }
-}
-
-async function loadRenderers(dir: string) {
-  let renderers = await readdir(dir);
-  for (let i = 0; i < renderers.length; i++) {
-    let importRenderers: Renderers = require(path.join(dir, path.basename(renderers[i])));
-    importRenderers.block.forEach((renderer)=>addRenderer('block', renderer));
-    importRenderers.line.forEach((renderer)=>addRenderer('line', renderer));
-    importRenderers.inline.forEach((renderer)=>addRenderer('inline', renderer));
-  }
-  return
-}
-
-async function initRenderer(themeDir: string) {
-  loadRenderers(path.join(__dirname, './renderer/'));
-  loadRenderers(path.join(themeDir, './scripts/renderer/'));
+  return;
 }
 
 export{
   initMarked,
   render,
   renderAll,
-  initRenderer,
 };

@@ -1,25 +1,27 @@
+import { defaultConfig } from "ezal/source/config";
 import { mkdir, writeFile } from "fs/promises";
 import path from "path";
 
 const dirs = [
   'assets',
-  'layout',
-  'plugin/marked',
-  'plugin/pug',
-  'plugin/stylus',
-  'scripts/generate',
-  'scripts/post-assets',
-  'scripts/post-generate',
-  'scripts/post-render',
-  'scripts/pre-render',
   'pages',
   'posts',
-  'style',
   'template',
+  'themes/default/assets',
+  'themes/default/layout',
+  'themes/default/plugin/marked',
+  'themes/default/plugin/pug',
+  'themes/default/plugin/stylus',
+  'themes/default/scripts/generate',
+  'themes/default/scripts/post-assets',
+  'themes/default/scripts/post-generate',
+  'themes/default/scripts/post-render',
+  'themes/default/scripts/pre-render',
+  'themes/default/style',
 ];
 
 const files = {
-  'config.yml': '',
+  'config.yml': defaultConfig,
   'template/page.md': `---
   title: $title$
   date: $date$
@@ -32,6 +34,7 @@ const files = {
   categories:
   tags:
   ---`,
+  'themes/default/config.yml': '',
 };
 
 export default async function init () {

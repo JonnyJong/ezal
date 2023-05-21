@@ -24,13 +24,17 @@ async function copy(from: string, to: string) {
   });
 }
 
-async function copyAssets() {
+async function copyAssets(themeName: string) {
+  let themeAssetsBase = path.join(process.cwd(), 'themes', themeName, 'assets');
   let files = readFiles(assetsBase);
+  let themeFiles = readFiles(themeAssetsBase);
   for (let i = 0; i < files.length; i++) {
-    files[i]
-    await copy(files[i], path.join(process.cwd(), 'out', files[i].replace(assetsBase, '')))
+    await copy(files[i], path.join(process.cwd(), 'out', files[i].replace(assetsBase, '')));
   }
-  return
+  for (let i = 0; i < themeFiles.length; i++) {
+    await copy(themeFiles[i], path.join(process.cwd(), 'out', files[i].replace(themeAssetsBase, '')));
+  }
+  return;
 }
 
-export {copyAssets}
+export {copyAssets};

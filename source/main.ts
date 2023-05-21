@@ -1,5 +1,5 @@
 import { info } from "./console";
-import readConfig, { checkConfig } from "./config";
+import readConfig, { checkConfig, checkThemeConfig, readThemeConfig } from "./config";
 import { readPages, readPosts, pages, posts, categroies, tags, Page, Post, updatePage, readPage } from "./page";
 import { initEvents, triggerListeners } from "./event";
 import { initMarked, render, renderAll } from "./render";
@@ -10,6 +10,7 @@ import clean from "./clean";
 import Watcher from "./watch";
 import { startServer, stopServer } from "./serve";
 import init from "./init";
+import path from "path";
 
 let config: any;
 
@@ -19,35 +20,38 @@ async function check() {
   let startStamp = Date.now()
   info('Initializing...');
   await checkConfig();
-  await initMarked(options);
-  await initStylus(options);
-  await initEvents(options);
+  info('Loading config...');
+  config = await readConfig();
+  await checkThemeConfig(config.theme);
+  await readThemeConfig(config.theme);
+  let themePath = path.join(process.cwd(), config.theme)
+  await initMarked(options, themePath);
+  await initStylus(options, themePath);
+  await initEvents(options, themePath);
   info(`Ready in ${Date.now() - startStamp}ms.`)
 }
 
 async function build() {
-  info('Loading config...');
-  config = await readConfig();
   info('Loading pages and posts...');
   await readPages();
   await readPosts();
   await triggerListeners('pre-render');
   info('Rendering...');
-  await renderAll(pages);
-  await renderAll(posts);
+  await renderAll(Array.from(pages));
+  await renderAll(Array.from(posts));
   await triggerListeners('post-render');
   await generateAll(Array.from(pages));
   await generateAll(Array.from(posts));
   await triggerListeners('generate');
   await triggerListeners('post-generate');
   await generateStyle();
-  await copyAssets();
+  await copyAssets(config.theme);
   await triggerListeners('post-assets');
   info('Done!');
 }
 
 function serve() {
-  let watcher = new Watcher(copyAssets, async (event: 'add'|'addDir'|'change'|'unlink'|'unlinkDir')=>{
+  let watcher = new Watcher(()=>copyAssets(config.theme), async (event: 'add'|'addDir'|'change'|'unlink'|'unlinkDir')=>{
     if (event.includes('Dir')) return;
     await generateAll(Array.from(pages));
     await generateAll(Array.from(posts));
