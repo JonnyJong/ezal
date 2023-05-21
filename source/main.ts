@@ -14,7 +14,7 @@ import path from "path";
 
 let config: any;
 
-let options = {config, pages, posts, categroies, tags, Page, Post}
+let options = {config: {}, pages, posts, categroies, tags, Page, Post, theme: {}}
 
 async function check() {
   let startStamp = Date.now()
@@ -23,8 +23,10 @@ async function check() {
   info('Loading config...');
   config = await readConfig();
   await checkThemeConfig(config.theme);
-  await readThemeConfig(config.theme);
-  let themePath = path.join(process.cwd(), config.theme)
+  let themeConfig = await readThemeConfig(config.theme);
+  options.config = config;
+  options.theme = themeConfig;
+  let themePath = path.join(process.cwd(), config.theme);
   await initMarked(options, themePath);
   await initStylus(options, themePath);
   await initEvents(options, themePath);

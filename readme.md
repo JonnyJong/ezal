@@ -3,6 +3,10 @@ Simple blog framework.
 
 [简体中文](https://github.com/JonnyJong/ezal/blob/main/readme.zh.md)
 
+## Document
+[English Document](https://github.com/JonnyJong/ezal/blob/main/docs/english.md)
+[中文文档](https://github.com/JonnyJong/ezal/blob/main/docs/chinese.md)
+
 ## Todo
 - [x] Markdown Renderer
 - [ ] Plugin System
@@ -17,6 +21,13 @@ Simple blog framework.
 Install Ezal.
 ```bash
 npm init
+npm install --save chokidar
+npm install --save highlight.js
+npm install --save live-server
+npm install --save marked
+npm install --save pug
+npm install --save stylus
+npm install --save yaml
 npm install --save ezal
 ```
 

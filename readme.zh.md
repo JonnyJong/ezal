@@ -3,6 +3,10 @@
 
 [English](https://github.com/JonnyJong/ezal/blob/main/readme.md)
 
+## 文档
+[中文文档](https://github.com/JonnyJong/ezal/blob/main/docs/chinese.md)
+[English Document](https://github.com/JonnyJong/ezal/blob/main/docs/english.md)
+
 ## 待办事项
 - [x] Markdown 渲染器
 - [ ] 插件系统

@@ -33,7 +33,7 @@ async function checkThemeConfig(themeName: string) {
   let themeConfigAccessabled = await access(themeDefaultConfigPath, constants.R_OK).then(()=>true,()=>false);
   if (!themeConfigAccessabled) return;
   return access(themeUserConfigPath)
-  .catch(async ()=>writeFile(themeUserConfigPath, await readFile(themeDefaultConfigPath, 'utf-8'), 'utf-8'))
+  .catch(async ()=>writeFile(themeUserConfigPath, '', 'utf-8'))
   .catch(()=>{
     throw `Could not create ${themeName}.config.yml.`;
   });
