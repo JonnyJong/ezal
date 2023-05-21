@@ -23,7 +23,7 @@ async function generate(page: Page | Post) {
   let layout = path.join(process.cwd(), 'layout', page.layout + '.pug');
   let layoutAccessable = await access(path.join(process.cwd(), 'layout', page.layout + '.pug')).then(()=>true).catch(()=>false);
   if (!layoutAccessable) layout = path.join(process.cwd(), 'layout', 'page.pug');
-  let result = pug.renderFile(layout, Object.assign(globalOptions, options));
+  let result = pug.renderFile(layout, Object.assign(globalOptions, options, {page}));
   return await writeFile(path.join(process.cwd(), 'out', page.url, 'index.html'), result, 'utf8');
 }
 async function generateAll(pages: Array<Page | Post>) {

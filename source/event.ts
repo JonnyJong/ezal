@@ -43,7 +43,7 @@ async function initEvents(args: any, themePath: string) {
 }
 async function triggerListeners(event: 'pre-render' | 'post-render' | 'generate' | 'post-generate' | 'post-assets') {
   for (let i = 0; i < listeners[event].length; i++) {
-    await listeners[event][i]();
+    await listeners[event][i](parmas);
   }
 }
 
