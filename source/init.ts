@@ -9,14 +9,7 @@ const dirs = [
   'template',
   'themes/default/assets',
   'themes/default/layout',
-  'themes/default/plugin/marked',
-  'themes/default/plugin/pug',
-  'themes/default/plugin/stylus',
-  'themes/default/scripts/generate',
-  'themes/default/scripts/post-assets',
-  'themes/default/scripts/post-generate',
-  'themes/default/scripts/post-render',
-  'themes/default/scripts/pre-render',
+  'themes/default/scripts/',
   'themes/default/style',
 ];
 

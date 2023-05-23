@@ -9,13 +9,13 @@ Simple blog framework.
 
 ## Todo
 - [x] Markdown Renderer
-- [ ] Plugin System
+- [x] Plugin System
   - [ ] Typescript support
 - [ ] Remake category function
 - [ ] Improve server mode
-- [ ] Improve build process
+- [x] Improve build process
 - [x] Theme support
-- [ ] Document
+- [x] Document
 
 ## Use
 Install Ezal.

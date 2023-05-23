@@ -25,16 +25,26 @@ async function copy(from: string, to: string) {
 }
 
 async function copyAssets(themeName: string) {
+  await dispatchEvent('pre-assets');
   let themeAssetsBase = path.join(process.cwd(), 'themes', themeName, 'assets');
   let files = readFiles(assetsBase);
   let themeFiles = readFiles(themeAssetsBase);
-  for (let i = 0; i < themeFiles.length; i++) {
-    await copy(themeFiles[i], path.join(process.cwd(), 'out', files[i].replace(themeAssetsBase, '')));
+  for (const file of themeFiles) {
+    await copy(file, path.join(process.cwd(), 'out', file.replace(themeAssetsBase, '')));
   }
-  for (let i = 0; i < files.length; i++) {
-    await copy(files[i], path.join(process.cwd(), 'out', files[i].replace(assetsBase, '')));
+  for (const file of files) {
+    await copy(file, path.join(process.cwd(), 'out', file.replace(assetsBase, '')));
   }
+  await dispatchEvent('post-assets');
   return;
 }
 
-export {copyAssets};
+let dispatchEvent: Function;
+function initAssets(eventDispatcher: Function) {
+  dispatchEvent = eventDispatcher;
+}
+
+export {
+  initAssets,
+  copyAssets,
+};

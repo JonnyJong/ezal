@@ -5,7 +5,7 @@ const outBase = path.join(process.cwd(), 'out')
 
 export default function clean(dir: string = outBase) {
   let files = readdirSync(dir, { withFileTypes: true, });
-  files.forEach((dirent, index)=>{
+  files.forEach((dirent)=>{
     let target = path.join(dir, dirent.name);
     if (dirent.isFile()) {
       unlinkSync(target);

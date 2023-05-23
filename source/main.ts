@@ -1,65 +1,117 @@
 import { info } from "./console";
 import readConfig, { checkConfig, checkThemeConfig, readThemeConfig } from "./config";
 import { readPages, readPosts, pages, posts, categories, tags, Page, Post, updatePage, readPage } from "./page";
-import { initEvents, triggerListeners } from "./event";
-import { initMarked, render, renderAll } from "./render";
+import { addListener, dispatchEvent } from "./event";
+import { initRenderer, render, renderAll } from "./render";
 import { generate, generateAll, initPug } from "./generate";
 import { generateStyle, initStylus } from "./style";
-import { copyAssets } from "./assets";
+import { copyAssets, initAssets } from "./assets";
 import clean from "./clean";
 import Watcher from "./watch";
 import { startServer, stopServer } from "./serve";
 import init from "./init";
 import path from "path";
+import Module from "module";
+import { loadScript } from "./script-loader";
 
-let config: any;
+interface EzalModule{
+  addListener: Function;
+  pug: object;
+  stylus: object;
+  render: {
+    markdown?: Function;
+    pug?: Function;
+    stylus?: Function;
+  };
+  config: any;
+  theme: any;
+  Page: any;
+  Post: any;
+  pages: Set<import('./page').Page>;
+  posts: Set<import('./page').Post>;
+  categories:  Map<string, Set<import('./page').Post>>;
+  tags: Map<string, Set<import('./page').Post>>;
+  setMarkedHighlight?: Function,
+  setMarkedExtension?: Function,
+};
 
-let options = {config: {}, pages, posts, categories, tags, Page, Post, theme: {}}
+let ezalModule: EzalModule = {
+  // event
+  addListener,
+  // pug objects
+  pug: {},
+  // stylus objects
+  stylus: {},
+  // render functions
+  render: {},
+  // config
+  config: {},
+  theme: {},
+  // about pages
+  Page,
+  Post,
+  pages,
+  posts,
+  categories,
+  tags,
+};
 
-async function check() {
-  let startStamp = Date.now()
-  info('Initializing...');
-  await checkConfig();
-  info('Loading config...');
-  config = await readConfig();
-  await checkThemeConfig(config.theme);
-  let themeConfig = await readThemeConfig(config.theme);
-  options.config = config;
-  options.theme = themeConfig;
-  let themePath = path.join(process.cwd(), 'themes', config.theme);
-  await initPug(options, themePath);
-  await initMarked(options, themePath);
-  await initStylus(options, themePath);
-  await initEvents(options, themePath);
-  info(`Ready in ${Date.now() - startStamp}ms.`)
+function initEzalModule() {
+  // @ts-ignore
+  let originLoader = Module._load;
+  // @ts-ignore
+  Module._load = function _load(...args: any){
+    if (args[0] !== 'ezal') return originLoader(...args);
+    return ezalModule;
+  }
 }
 
 async function build() {
+  let startStamp = Date.now();
+
+  info('Initializing...');
+  await checkConfig();
+  await initEzalModule();
+
+  info('Loading config...');
+  ezalModule.config = await readConfig();
+  await checkThemeConfig(ezalModule.config.theme);
+  ezalModule.theme = await readThemeConfig(ezalModule.config.theme);
+
+  let themePath = path.join(process.cwd(), 'themes', ezalModule.config.theme);
+  await initPug(ezalModule, themePath, dispatchEvent);
+  await initStylus(ezalModule, themePath, dispatchEvent);
+  await initRenderer(ezalModule, dispatchEvent);
+  await initAssets(dispatchEvent);
+  await loadScript(themePath);
+
+  info(`Ready in ${Date.now() - startStamp}ms.`);
+
+  await dispatchEvent('init');
+
   info('Loading pages and posts...');
   await readPages();
   await readPosts();
-  await triggerListeners('pre-render');
+  await dispatchEvent('init-pages');
+
   info('Rendering...');
   await renderAll(Array.from(pages));
   await renderAll(Array.from(posts));
-  await triggerListeners('post-render');
   await generateAll(Array.from(pages));
   await generateAll(Array.from(posts));
-  await triggerListeners('generate');
-  await triggerListeners('post-generate');
+
   await generateStyle();
-  await copyAssets(config.theme);
-  await triggerListeners('post-assets');
+
+  await copyAssets(ezalModule.config.theme);
+
   info('Done!');
 }
 
 function serve() {
-  let watcher = new Watcher(config.theme, ()=>copyAssets(config.theme), async (event: 'add'|'addDir'|'change'|'unlink'|'unlinkDir')=>{
+  let watcher = new Watcher(ezalModule.config.theme, ()=>copyAssets(ezalModule.config.theme), async (event: 'add'|'addDir'|'change'|'unlink'|'unlinkDir')=>{
     if (event.includes('Dir')) return;
     await generateAll(Array.from(pages));
     await generateAll(Array.from(posts));
-    await triggerListeners('generate');
-    await triggerListeners('post-generate');
   }, async (event: 'add'|'addDir'|'change'|'unlink'|'unlinkDir', url: string)=>{
     if (event.includes('Dir')) return;
     switch (event) {
@@ -72,12 +124,8 @@ function serve() {
         await pages.forEach(async (page)=>{
           if (page.path === url) {
             updatePage(page);
-            await triggerListeners('pre-render');
             await render(page);
-            await triggerListeners('post-render');
             await generate(page);
-            await triggerListeners('generate');
-            await triggerListeners('post-generate');
           }
         });
         break;
@@ -97,12 +145,8 @@ function serve() {
         await posts.forEach(async (post)=>{
           if (post.path === url) {
             updatePage(post);
-            await triggerListeners('pre-render');
             await render(post);
-            await triggerListeners('post-render');
             await generate(post);
-            await triggerListeners('generate');
-            await triggerListeners('post-generate');
           }
         });
         break;
@@ -127,9 +171,9 @@ if (process.argv.includes('clean')) {
   info('Cleaning...');
   clean();
 }else if (process.argv.includes('serve')) {
-  check().then(build).then(serve);
+  build().then(serve);
 }else if (process.argv.includes('init')) {
   init();
 }else{
-  check().then(build);
+  build();
 }

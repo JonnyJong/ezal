@@ -2,16 +2,7 @@
 - assets
 - layout
 - plugin
-  - marked
-  - pug
-  - stylus
-  - highlight.js
 - scripts
-  - pre-render
-  - post-render
-  - generate
-  - post-generate
-  - post-assets
 - style
 - config.yml
 
@@ -21,89 +12,147 @@ The theme comes with a assets file that can be overwritten by the user's assets 
 ## layout
 HTML templates, using pug, are determined by the `layout` in the article and page to be used.
 
-## plugin/marked
-A plugin for the marked renderer, [Ref](https://marked.js.org/using_pro#extensions), supports asynchronous.
-Files in subfolders will be ignored.
-
-## plugin/pug
-Use `module.exports` to export objects that can be called in HTML templates.
-Files in subfolders will be ignored.
-
-## plugin/stylus
-Use `module.exports` to export objects that can be called in style templates.
-Files in subfolders will be ignored.
-
-## plugin/highlight.js
-Use `module.exports` to export functions to replace Ezal's own code highlighting, [Ref](https://www.npmjs.com/package/marked-highlight).
-```js
-module.exports = (code, lang)=>hljs.highlightAuto(code, [lang.split('%')[0]]).value;
-```
-
 ## scripts
-Use `module.exports` to export functions with asynchronous support.
-
-| 文件夹        | 时机             |
-|---------------|------------------|
-| pre-render    | 渲染 Markdown 前 |
-| post-render   | 渲染 Markdown 后 |
-| generate      | 生成文件时       |
-| post-generate | 生成文件后       |
-| post-assets   | 复制资源后       |
+Use the `module.exports` export function for initialization, asynchronous initialization is supported.
+All files in files or folders with filenames starting with `_` will be automatically ignored.
 
 ## style
 Style templates, using Stylus, [Ref](https://stylus-docs.netlify.app).
-Will generate all files in files or folders that do not start with `_` as their filename.
+All files in files or folders with filenames starting with `_` will be automatically ignored.
 
 ## config.yml
 Theme configuration file, which will be merged with `<theme name>.config.yml`, `config.yml` has low priority.
 
 # API
-Applies to all script files except `plugin/highlight.js`.
+
+| Type                 | Description                           |
+| -------------------- | ------------------------------------- |
+| `addListener`        | Add event listener                    |
+| `pug`                | pug options                           |
+| `stylus`             | stylus option                         |
+| `render`             | render a string in a specific format  |
+| `config`             | Ezal configuration                    |
+| `theme`              | theme configuration                   |
+| `Page`               | page object                           |
+| `Post`               | article object                        |
+| `pages`              | All pages                             |
+| `posts`              | all posts                             |
+| `categories`         | all categories                        |
+| `tags`               | all tags                              |
+| `setMarkedHighlight` | set Marked code highlighting function |
+| `setMarkedExtension` | set Marked Extension                  |
+
+## Events
+
+| Type            | Action Time                                    | Parameters                        |
+| --------------- | ---------------------------------------------- | --------------------------------- |
+| `init`          | initialize*                                    |                                   |
+| `init-pages`    | after reading user-written articles and pages* |                                   |
+| `pre-render`    | before rendering Markdown                      | `post: Post`                      |
+| `post-render`   | after reading Markdown                         | `post: Post`                      |
+| `pre-generate`  | before generating HTML                         | `post: Post`                      |
+| `post-generate` | after generating HTML                          | `{ post: Post, html: string }`    |
+| `pre-style`     | before generating styles                       | `{ stylus: string, css: string }` |
+| `post-style`    | post-style                                     | `{ stylus: string, css: string }` |
+| `pre-assets`    | before copying resource files                  |                                   |
+| `post-assets`   | after copying the resource file                |                                   |
+
+`*` is an event that will only be dispatch once.
 
 Example:
-```js plugin/
-module.exports = ({config, theme, pages, posts, categories, tags, Page, Post})=>{
-  // Configuration parameters from config.yml
-  config;
-  // Configuration parameters of the theme
-  theme;
-  // All pages
-  pages;
-  // All articles
-  posts;
-  // categories
-  categories;
-  // Tags
-  tags;
-  // Create a new page
-  new Page(path, markdownSource);
-  // Create a new article
-  new Post(path, markdownSource);
-}
-```
+```js
+const { addListener } = require('ezal');
+const { getImageInfo } = require('package-for-image-processing');
 
-Asynchronous example:
-```js
-module.exports = async ()=>{
-  return async ()=>{}
-}
-```
+const matchImgTags = /match <img> tags.../g;
+const matchSrc = /match src.../;
 
-For `plugin/pug` and `plugin/stylus`, asynchronous functions are not available.
-Correct example:
-```js
-module.exports = async ()=>{
-  return ()=>{}
-}
-```
-```js
 module.exports = ()=>{
-  return ()=>{}
+  addListener(`post-render`, async (post)=>{
+    let imgs = matchImgTags.exec(post.context);
+    let imgsInfo = [];
+    for (img of imgs) {
+      let src = matchSrc.exec(img);
+      imgsInfo.push(await getImageInfo(src));
+    }
+    post.context = post.context.replace(matchImgTags, (originHTMl, index)=>{
+      const { height, width, primaryColor} = imgsInfo[index];
+      return `<div class="img" style="--height:${height}px;--width:${width}px;--color:${primaryColor}">${originHTMl}</div>`;
+    });
+    return;
+  });
 }
 ```
-Example of error:
+
+## pug, stylus options
+Add other objects to this object to call them in the pug or stylus templates.
+
+Note that pug and stylus do not support asynchronous functions.
+
+Example:
 ```js
+const { pug } = require('ezal');
+
+module.exports = ()=>{
+  pug.log = console.log;
+}
+```
+
+## Render
+Rendering of pug templates, markdown, and strings conforming to stylus syntax is supported.
+
+Example:
+```js
+const { render } = require('ezal');
+
 module.exports = async ()=>{
-  return async ()=>{}
+  await render.pug("pug file's name in theme's layout folder", pugOption);
+  await render.markdown('# Hello World');
+  await render.stylus(`
+    body
+      margin 0
+  `, stylusOption);
+}
+```
+
+## Create a page or post
+```js
+const { Page, Post } = require('ezal');
+
+module.exports = ()=>{
+  new Page('Relative URL of the page', 'markdown context');
+  new Post('Relative URL of the post', 'markdown context');
+}
+```
+
+## Modify the code highlighting function
+[Ref](https://www.npmjs.com/package/marked-highlight).
+
+```js
+const { setMarkedHighlight } = require('ezal');
+const { markedHighlight } = require('marked-highlight');
+const hljs = require('highlight.js');
+
+module.exports = ()=>{
+  setMarkedHighlight(markedHighlight({
+    langPrefix: 'hljs language-',
+    async: true,
+    highlight(code, lang){
+      return hljs.highlightAuto(code, [lang]).value;
+    }
+  }));
+}
+```
+
+## Add Marked extension
+[Ref](https://marked.js.org/using_pro#extensions), supports asynchronous.
+
+```js
+const { setMarkedExtension } = require('ezal');
+
+module.exports = ()=>{
+  setMarkedExtension([
+    ...markedExtension
+  ]),
 }
 ```

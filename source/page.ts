@@ -226,12 +226,12 @@ class Post{
     }
     switch (typeof frontMatter.categories) {
       case 'string':
-        this.addcategory(frontMatter.categories);
+        this.addCategory(frontMatter.categories);
         break;
       case 'object':
         if (frontMatter.categories instanceof Array) {
           frontMatter.categories.forEach((tag: any)=>{
-            if (typeof tag === 'string') this.addcategory(tag);
+            if (typeof tag === 'string') this.addCategory(tag);
           });
         }
         break;
@@ -260,7 +260,7 @@ class Post{
       tags.get(name)?.delete(this);
     }
   }
-  addcategory(name: string){
+  addCategory(name: string){
     this.categories.add(name);
     if (categories.has(name)) {
       categories.get(name)?.add(this);
@@ -268,7 +268,7 @@ class Post{
       categories.set(name, new Set([this]));
     }
   }
-  removecategory(name: string){
+  removeCategory(name: string){
     if (categories.has(name)) {
       this.categories.delete(name);
       categories.get(name)?.delete(this);
@@ -277,7 +277,7 @@ class Post{
   remove(){
     posts.delete(this);
     this.tags.forEach(this.removeTag);
-    this.categories.forEach(this.removecategory);
+    this.categories.forEach(this.removeCategory);
     for (const key in this) {
       if (Object.prototype.hasOwnProperty.call(this, key) && !postKeys.includes(key)) {
         delete this[key];

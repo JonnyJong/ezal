@@ -1,5 +1,5 @@
 import { readdirSync } from "fs";
-import { access, mkdir, readFile, readdir, writeFile } from "fs/promises";
+import { access, mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import stylus from "stylus";
 
@@ -19,35 +19,56 @@ function readFiles(dir: string) {
 }
 
 let globalOptions: any;
-let options: any = {};
 let themePath: string;
-function initStylus(option: any, themeDir: string) {
+let dispatchEvent: Function;
+function initStylus(ezalModule: any, themeDir: string, eventDispatcher: Function) {
+  dispatchEvent = eventDispatcher;
   styleBase = path.join(themeDir, 'style');
-  globalOptions = option;
-  themePath = themeDir
-  return readdir(path.join(themePath, 'plugin/stylus'), { withFileTypes: true }).then((files)=>{
-    let added: Set<string> = new Set();
-    let options: any[] = [];
-    files.forEach((dirent)=>{
-      if (dirent.isFile() && ['.js', '.node'].includes(path.extname(dirent.name)) && !added.has(path.parse(dirent.name).name)) {
-        added.add(path.parse(dirent.name).name);
-        options = Object.assign(option, require(path.join(themePath, 'plugin/stylus', path.parse(dirent.name).name))(options));
-      }
-    });
+  globalOptions = ezalModule;
+  themePath = themeDir;
+  ezalModule.render.stylus = renderStylus;
+}
+function renderStylus(stylusContext: string, options: any = {}, paths: any, filename: any) {
+  return stylus.render(stylusContext, {
+    paths,
+    filename,
+    globals: Object.assign({
+      config: globalOptions.config,
+      theme: globalOptions.theme,
+      pages: globalOptions.pages,
+      posts: globalOptions.posts,
+      categories: globalOptions.categories,
+      tags: globalOptions.tags,
+    }, globalOptions.stylus, options),
   });
 }
+
+interface StyleContent{
+  stylus: any;
+  css: any;
+};
+
 async function generateStyle() {
   let files = readFiles(path.join(themePath, 'style'));
   for (let i = 0; i < files.length; i++) {
-    let stylusContext = await readFile(files[i], 'utf-8')
-    let cssContext = await stylus.render(stylusContext, {
-      paths: [path.dirname(files[i])],
-      filename: path.basename(files[i]),
-      globals: Object.assign(globalOptions, options),
-    });
-    await access(path.join(process.cwd(), 'out/style', path.dirname(files[i].replace(styleBase, ''))))
-    .catch(()=>mkdir(path.join(process.cwd(), 'out/style', path.dirname(files[i].replace(styleBase, ''))), { recursive: true }));
-    await writeFile(path.join(process.cwd(), 'out/style', path.dirname(files[i].replace(styleBase, '')), path.parse(files[i].replace(styleBase, '')).name + '.css'), cssContext, 'utf8');
+    let styleContent: StyleContent = {
+      stylus,
+      // @ts-ignore
+      css: '',
+    }
+    styleContent.stylus = await readFile(files[i], 'utf-8')
+    await dispatchEvent('pre-style', styleContent)
+    styleContent.css = renderStylus(
+      styleContent.stylus,
+      {},
+      [path.dirname(files[i])],
+      path.basename(files[i]),
+    );
+    await dispatchEvent('post-style', styleContent)
+    const outputDir = path.join(process.cwd(), 'out/style', path.dirname(files[i].replace(styleBase, '')));
+    await access(outputDir)
+    .catch(()=>mkdir(outputDir, { recursive: true }));
+    await writeFile(path.join(outputDir, path.parse(files[i].replace(styleBase, '')).name + '.css'), styleContent.css, 'utf8');
   }
 }
 
