@@ -31,11 +31,11 @@
   "dependencies": {
     "chokidar": "^3.5.3",
     "highlight.js": "^11.8.0",
-    "katex": "^0.16.7",
     "live-server": "^1.2.2",
     "marked": "^5.0.2",
+    "marked-gfm-heading-id": "^3.0.3",
     "marked-highlight": "^2.0.0",
-    "marked-katex": "^0.3.8",
+    "marked-mangle": "^1.0.1",
     "pug": "^3.0.2",
     "stylus": "^0.59.0",
     "yaml": "^2.2.2"

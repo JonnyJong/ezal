@@ -10,7 +10,7 @@ Simple blog framework.
 ## Todo
 - [x] Markdown Renderer
 - [x] Plugin System
-  - [ ] Typescript support
+  - [ ] Typescript support (optional)
 - [ ] Remake category function
 - [ ] Improve server mode
 - [x] Improve build process
@@ -26,6 +26,8 @@ npm install --save highlight.js
 npm install --save live-server
 npm install --save marked
 npm install --save marked-highlight
+npm install --save marked-gfm-heading-id
+npm install --save marked-mangle
 npm install --save pug
 npm install --save stylus
 npm install --save yaml

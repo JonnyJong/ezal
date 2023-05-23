@@ -10,7 +10,7 @@
 ## 待办事项
 - [x] Markdown 渲染器
 - [x] 插件系统
-  - [ ] 支持 Typescript
+  - [ ] 支持 Typescript（可选）
 - [ ] 重做分类功能
 - [ ] 改进服务器模式
 - [x] 改进构建过程
@@ -26,6 +26,8 @@ npm install --save highlight.js
 npm install --save live-server
 npm install --save marked
 npm install --save marked-highlight
+npm install --save marked-gfm-heading-id
+npm install --save marked-mangle
 npm install --save pug
 npm install --save stylus
 npm install --save yaml
