@@ -11,7 +11,7 @@ Simple blog framework.
 - [x] Markdown Renderer
 - [x] Plugin System
   - [ ] Typescript support (optional)
-- [ ] Remake category function
+- [x] Remake category function
 - [ ] Improve server mode
 - [x] Improve build process
 - [x] Theme support

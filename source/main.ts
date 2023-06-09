@@ -1,6 +1,6 @@
 import { info } from "./console";
 import readConfig, { checkConfig, checkThemeConfig, readThemeConfig } from "./config";
-import { readPages, readPosts, pages, posts, categories, tags, Page, Post, updatePage, readPage } from "./page";
+import { readPages, readPosts, pages, posts, categoriesRoot, tags, Page, Post, updatePage, readPage } from "./page";
 import { addListener, dispatchEvent } from "./event";
 import { initRenderer, render, renderAll } from "./render";
 import { generate, generateAll, initPug } from "./generate";
@@ -13,6 +13,8 @@ import init from "./init";
 import path from "path";
 import Module from "module";
 import { loadScript } from "./script-loader";
+type CategoryRoot = import("./category").CategoryRoot;
+type Tags = import("./tag").Tags;
 
 interface EzalModule{
   addListener: Function;
@@ -29,8 +31,8 @@ interface EzalModule{
   Post: any;
   pages: Set<import('./page').Page>;
   posts: Set<import('./page').Post>;
-  categories:  Map<string, Set<import('./page').Post>>;
-  tags: Map<string, Set<import('./page').Post>>;
+  categories:  CategoryRoot;
+  tags: Tags;
   setMarkedHighlight?: Function,
   setMarkedExtension?: Function,
 };
@@ -52,7 +54,7 @@ let ezalModule: EzalModule = {
   Post,
   pages,
   posts,
-  categories,
+  categories: categoriesRoot,
   tags,
 };
 

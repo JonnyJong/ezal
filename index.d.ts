@@ -121,11 +121,11 @@ declare module 'ezal'{
     /**
      * Post's categories
      */
-    categories: Set<string>
+    categories: Map<Array<string>, Category>
     /**
      * Post's tags
      */
-    tags: Set<string>
+    tags: Set<Tag>
     /**
      * Add a tag in this post
      * @param name Tag's name
@@ -156,13 +156,170 @@ declare module 'ezal'{
    */
   export let posts: Set<Post>
   /**
+   * Category array path
+   */
+  type CategoryPath = Array<string>;
+  /**
+   * Categories map
+   */
+  type Categories = Map<string, Category>;
+  /**
+   * Category root object model
+   */
+  class CategoryRoot{
+    /**
+     * Children category
+     */
+    children: Categories;
+    /**
+     * Find subcategories under the current category
+     * @param path Category array path
+     */
+    query(path: CategoryPath): Category | undefined;
+    /**
+     * Add subcategories under the current category
+     * @param category Category child
+     */
+    addChild(category: Category): void;
+    /**
+     * Get subcategories in the current category, or automatically create subcategories if there are none
+     * @param name Category's name
+     */
+    getChildAuto(name: string): Category;
+    /**
+     * Get category's root
+     */
+    static getAll(): Categories;
+    /**
+     * Get subcategories at the category root, or automatically create subcategories if there are none
+     * @param path Category array path
+     */
+    static getByPathAuto(path: CategoryPath): Category;
+    /**
+     * Add post to category by path
+     * @param path Category array path
+     * @param post Post object
+     */
+    static addPostByPath(path: CategoryPath, post: Post): Category;
+    /**
+     * Initialize categories for post
+     * @param post Post object
+     * @param object YAML parsed object
+     */
+    static initCategories(post: Post, object: any): void
+  }
+  /**
+   * Category object model
+   */
+  class Category extends CategoryRoot{
+    /**
+     * Category's name
+     */
+    name: string;
+    /**
+     * Posts under the category
+     */
+    posts: Set<Post>;
+    /**
+     * Parent category
+     */
+    parent: Category | CategoryRoot;
+    /**
+     * Category's path
+     */
+    path: CategoryPath;
+    /**
+     * @param path Category's path
+     */
+    constructor(path: CategoryPath)
+    /**
+     * Remove category
+     */
+    remove(): void;
+    /**
+     * Add post to this category
+     * @param post Post object
+     */
+    addPost(post: Post): void;
+    /**
+     * Remove post from this category
+     * @param post Post object
+     */
+    removePost(post: Post): void;
+  }
+  /**
    * All the categories
    */
-  export let categories: Map<string, Set<Post>>
+  export let categories: CategoryRoot;
+  /**
+   * Tag root object model
+   */
+  class Tags{
+    /**
+     * Create a tag that cannot have the same name as an existing tag
+     * @param name Tag's name
+     */
+    add(name: string): Tag;
+    /**
+     * Remove a tag
+     * @param tag Tag's name
+     */
+    delete(tag: string): boolean;
+    /**
+     * Executes a provided function once per each tag in the tags object, in insertion order.
+     */
+    forEach(callbackfn: (value: Tag, value2: Tag, set: Set<Tag>) => void, thisArg?: any): void;
+    /**
+     * Check if tag exists
+     * @param name Tag's name
+     */
+    has(name: string): boolean;
+    /**
+     * Get tag
+     * @param name Tag's name
+     */
+    get(name: string): Tag | null;
+    /**
+     * Get the tag, if it does not exist, it will be created automatically
+     * @param name Tag's name
+     */
+    autoGet(name: string): Tag;
+    /**
+     * @returns The number of tags
+     */
+    readonly size: number;
+  }
+  /**
+   * Tag object model
+   */
+  class Tag{
+    /**
+     * Tag's name
+     */
+    name: string;
+    /**
+     * Tag's posts
+     */
+    posts: Set<Post>;
+    /**
+     * Add post in this tag
+     * @param post Post object
+     */
+    addPost(post: Post): void;
+    /**
+     * Remove post in this tag
+     * @param post Post object
+     */
+    removePost(post: Post): void;
+    /**
+     * Remove this tag
+     */
+    remove(): void;
+  }
   /**
    * All the tags
    */
-  export let tags: Map<string, Set<Post>>
+  export let tags: Tags | Set<Tag>;
   /**
    * Set marked code highlight extension
    * @param markedHighlight Marked code highlight extension

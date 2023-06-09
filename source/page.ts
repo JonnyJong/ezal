@@ -3,6 +3,8 @@ import { readdirSync } from "fs";
 import { readFile } from "fs/promises";
 import path from "path";
 import { parse } from "yaml";
+import { Category, categoriesRoot } from "./category";
+import { tags, Tag } from "./tag";
 
 const pageBase = path.join(process.cwd(), 'pages');
 const postBase = path.join(process.cwd(), 'posts');
@@ -12,91 +14,6 @@ const postKeys = ['path', 'title', 'date', 'updated', 'layout', 'source', 'conte
 
 let pages: Set<Page> = new Set();
 let posts: Set<Post> = new Set();
-let categories: Map<string, Set<Post>> = new Map();
-// let categories: Set<category> = new Set();
-let tags: Map<string, Set<Post>> = new Map();
-
-/* class category{
-  name: string;
-  posts: Set<Post> = new Set();
-  parent: category | null = null;
-  children: Set<category> = new Set();
-  constructor(name: string, parent: category | null){
-    category._checkName(name, parent);
-    this.name = name;
-    if (parent) {
-      this.parent = parent;
-      this.parent.addChild(this);
-    }else{
-      categories.add(this);
-    }
-  }
-  addChild(child: category){
-    category._checkName(child.name, this)
-    categories.delete(child);
-    this.children.add(child);
-    if (child.parent) {
-      child.parent.children.delete(child);
-    }
-    child.parent = this;
-  }
-  setParent(parent: category){
-    category._checkName(this.name, parent)
-    if (this.parent) {
-      this.parent.children.delete(this);
-      this.parent = parent;
-      this.parent.children.add(this);
-    }else{
-      categories.delete(this);
-      this.parent = parent;
-      this.parent.children.add(this);
-    }
-  }
-  removeParent(){
-    category._checkName(this.name, null)
-    if (this.parent) {
-      this.parent.children.delete(this);
-      this.parent = null;
-    }
-  }
-  remove(){
-    if (this.parent) {
-      this.parent.children.delete(this);
-    }else{
-      categories.delete(this)
-    }
-    this.posts.forEach((post)=>{
-      post.categories.delete(this)
-    })
-  }
-  addPost(post: Post){
-    this.posts.add(post)
-    post.categories.add(this)
-  }
-  removePost(post: Post){
-    this.posts.delete(post)
-    post.categories.delete(this)
-  }
-  setName(name: string){
-    category._checkName(name, this.parent)
-    this.name = name
-  }
-  static _checkName(name: string, range: category | null){
-    let checked = true
-    if (range) {
-      range.children.forEach((category)=>{
-        if (category.name === name) checked = false
-      })
-    }else{
-      categories.forEach((category)=>{
-        if (category.name === name) checked = false
-      })
-    }
-    if (!checked) {
-      throw new Error('Cannot set the same name in the same hierarchy.')
-    }
-  }
-} */
 
 function getFrontMatter(source: string) {
   try {
@@ -181,9 +98,8 @@ class Post{
   date: Date = new Date();
   updated: Date = new Date();
   layout: string = 'post';
-  categories: Set<string> = new Set();
-  // categories: Set<category> = new Set();
-  tags: Set<string> = new Set();
+  categories: Map<Array<string>, Category> = new Map();
+  tags: Set<Tag> = new Set();
   source: string = '';
   context: string = '';
   constructor(path: string, source: string){
@@ -224,18 +140,7 @@ class Post{
         }
         break;
     }
-    switch (typeof frontMatter.categories) {
-      case 'string':
-        this.addCategory(frontMatter.categories);
-        break;
-      case 'object':
-        if (frontMatter.categories instanceof Array) {
-          frontMatter.categories.forEach((tag: any)=>{
-            if (typeof tag === 'string') this.addCategory(tag);
-          });
-        }
-        break;
-    }
+    Category.initCategories(this, frontMatter.categories);
     for (const key in frontMatter) {
       if (Object.prototype.hasOwnProperty.call(frontMatter, key) && !postKeys.includes(key)) {
         // @ts-ignore
@@ -247,37 +152,34 @@ class Post{
     posts.add(this);
   }
   addTag(name: string){
-    this.tags.add(name);
-    if (tags.has(name)) {
-      tags.get(name)?.add(this);
-    }else{
-      tags.set(name, new Set([this]));
-    }
+    tags.autoGet(name).addPost(this);
   }
   removeTag(name: string){
-    if (tags.has(name)) {
-      this.tags.delete(name);
-      tags.get(name)?.delete(this);
-    }
+    let target: Tag | undefined;
+    this.tags.forEach((tag)=>{
+      if (tag.name === name){
+        target = tag;
+      }
+    });
+    if (!target) return
+    target.removePost(this);
   }
-  addCategory(name: string){
-    this.categories.add(name);
-    if (categories.has(name)) {
-      categories.get(name)?.add(this);
-    }else{
-      categories.set(name, new Set([this]));
-    }
+  addCategory(path: Array<string>){
+    Category.getByPathAuto(path).addPost(this);
   }
-  removeCategory(name: string){
-    if (categories.has(name)) {
-      this.categories.delete(name);
-      categories.get(name)?.delete(this);
-    }
+  removeCategory(path: Array<string>){
+    let target = this.categories.get(path);
+    if (!target) return;
+    target.removePost(this);
   }
   remove(){
     posts.delete(this);
-    this.tags.forEach(this.removeTag);
-    this.categories.forEach(this.removeCategory);
+    this.tags.forEach((tag)=>{
+      tag.removePost(this);
+    })
+    this.categories.forEach((category)=>{
+      category.removePost(this);
+    });
     for (const key in this) {
       if (Object.prototype.hasOwnProperty.call(this, key) && !postKeys.includes(key)) {
         delete this[key];
@@ -310,7 +212,10 @@ function readPage(path: string, type: 'page' | 'post') {
       result = new Post(path, source.replace(/\r\n/g, '\n'));
     }
     return result;
-  }).catch((err)=>null);
+  }).catch((err)=>{
+    console.error(err);
+    return null
+  });
 }
 async function readPosts() {
   let files = readFiles(path.join(process.cwd(), 'posts'));
@@ -339,7 +244,7 @@ function updatePage(page: Page | Post) {
 export {
   pages,
   posts,
-  categories,
+  categoriesRoot,
   tags,
   readPosts,
   readPages,
