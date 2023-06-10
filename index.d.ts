@@ -22,7 +22,18 @@ declare module 'ezal'{
    * Set stylus option in CSS template
    */
   export let stylus: {
-    [x: string | number | symbol] : any,
+    /**
+     * Set variables that can be obtained in stylus by get('keyName.keyName')
+     */
+    var: {
+      [x: string | number | symbol] : any,
+    },
+    /**
+     * Set the functions that can be called in stylus
+     */
+    function: {
+      [x: string | number | symbol] : Function,
+    }
   }
   export namespace render {
     /**

@@ -11,8 +11,7 @@
     "alwaysStrict": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "resolveJsonModule": true,
-    "watch": true
+    "resolveJsonModule": true
   },
   "include": ["./source/**/*"],
   "exclude": [

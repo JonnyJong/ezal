@@ -19,7 +19,10 @@ type Tags = import("./tag").Tags;
 interface EzalModule{
   addListener: Function;
   pug: object;
-  stylus: object;
+  stylus: {
+    var: object,
+    function: object,
+  };
   render: {
     markdown?: Function;
     pug?: Function;
@@ -43,7 +46,7 @@ let ezalModule: EzalModule = {
   // pug objects
   pug: {},
   // stylus objects
-  stylus: {},
+  stylus: {var:{}, function: {}},
   // render functions
   render: {},
   // config

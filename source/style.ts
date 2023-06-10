@@ -2,6 +2,7 @@ import { readdirSync } from "fs";
 import { access, mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import stylus from "stylus";
+type StylusRenderer = import("stylus/lib/renderer");
 
 let styleBase: string;
 
@@ -28,19 +29,44 @@ function initStylus(ezalModule: any, themeDir: string, eventDispatcher: Function
   themePath = themeDir;
   ezalModule.render.stylus = renderStylus;
 }
+
+function difineStyleOption(style: StylusRenderer, options: any) {
+  for (const key in options) {
+    if (Object.prototype.hasOwnProperty.call(options, key)) {
+      style.define(key, options[key]);
+    }
+  }
+}
+
 function renderStylus(stylusContext: string, options: any = {}, paths: any, filename: any) {
-  return stylus.render(stylusContext, {
-    paths,
-    filename,
-    globals: Object.assign({
-      config: globalOptions.config,
-      theme: globalOptions.theme,
-      pages: globalOptions.pages,
-      posts: globalOptions.posts,
-      categories: globalOptions.categories,
-      tags: globalOptions.tags,
-    }, globalOptions.stylus, options),
+  let style = stylus(stylusContext);
+  let stylusOptions = Object.assign({
+    config: globalOptions.config,
+    theme: globalOptions.theme,
+    pages: globalOptions.pages,
+    posts: globalOptions.posts,
+    categories: globalOptions.categories,
+    tags: globalOptions.tags,
+  }, globalOptions.stylus.var, options);
+  style.define('get', ({string})=>{
+    let target = stylusOptions;
+    string.split('.').forEach((key: string)=>{
+      target = target[key];
+    });
+    return target;
   });
+  for (const key in globalOptions.stylus.function) {
+    if (!Object.prototype.hasOwnProperty.call(globalOptions.stylus.function, key)) {
+      continue;
+    }
+    if (typeof globalOptions.stylus.function[key] !== 'function') {
+      continue;
+    }
+    style.define(key, globalOptions.stylus.function[key]);
+  }
+  style.set('paths', paths);
+  style.set('filename', filename);
+  return style.render();
 }
 
 interface StyleContent{
