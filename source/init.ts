@@ -16,17 +16,17 @@ const dirs = [
 const files = {
   'config.yml': defaultConfig,
   'template/page.md': `---
-  title: $title$
-  date: $date$
-  updated: $date$
-  ---`,
-  'template/post.md': `---
-  title: $title$
-  date: $date$
-  updated: $date$
-  categories:
-  tags:
-  ---`,
+title: $title$
+date: $date$
+updated: $date$
+---`,
+'template/post.md': `---
+title: $title$
+date: $date$
+updated: $date$
+categories:
+tags:
+---`,
   'themes/default/config.yml': '',
 };
 
