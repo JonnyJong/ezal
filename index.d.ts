@@ -340,5 +340,5 @@ declare module 'ezal'{
    * Set marked extensions
    * @param markedExtensions Marked extensions
    */
-  export function setMarkedExtension(markedExtensions: import('marked').marked.TokenizerAndRendererExtension[]):void
+  export function setMarkedExtension(markedExtensions: import('marked').marked.MarkedExtension):void
 }

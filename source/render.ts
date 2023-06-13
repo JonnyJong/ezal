@@ -33,10 +33,8 @@ function initRenderer(ezalModule: any, eventDispatcher: Function) {
   ezalModule.setMarkedHighlight = function(markedHighlight: marked.MarkedExtension) {
     marked.use(markedHighlight);
   };
-  ezalModule.setMarkedExtension = function(markedExtensions: marked.TokenizerAndRendererExtension[]){
-    marked.use({
-      extensions: markedExtensions,
-    });
+  ezalModule.setMarkedExtension = function(markedExtensions: marked.MarkedExtension){
+    marked.use(markedExtensions);
   };
   ezalModule.render.markdown = function(source: string){
     return marked(source);
