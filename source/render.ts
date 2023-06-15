@@ -1,5 +1,6 @@
 type Page = import('./page').Page;
 type Post = import('./page').Post;
+type EzalModule = import('./main').EzalModule;
 import { marked } from "marked";
 import hljs from "highlight.js";
 // @ts-ignore
@@ -10,7 +11,7 @@ import { mangle } from "marked-mangle";
 import { gfmHeadingId } from "marked-gfm-heading-id";
 
 let dispatchEvent: Function;
-function initRenderer(ezalModule: any, eventDispatcher: Function) {
+function initRenderer(ezalModule: EzalModule, eventDispatcher: Function) {
   dispatchEvent = eventDispatcher;
   marked.setOptions({
     async: true,

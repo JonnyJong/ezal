@@ -15,8 +15,7 @@ import Module from "module";
 import { loadScript } from "./script-loader";
 type CategoryRoot = import("./category").CategoryRoot;
 type Tags = import("./tag").Tags;
-
-interface EzalModule{
+export type EzalModule = {
   addListener: Function;
   pug: object;
   stylus: {
@@ -38,6 +37,8 @@ interface EzalModule{
   tags: Tags;
   setMarkedHighlight?: Function,
   setMarkedExtension?: Function,
+  setMarkdownExtension?: Function,
+  setMarkdownTag?:Function,
 };
 
 let ezalModule: EzalModule = {

@@ -3,6 +3,7 @@ import { access, mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import stylus from "stylus";
 type StylusRenderer = import("stylus/lib/renderer");
+type EzalModule = import('./main').EzalModule;
 
 let styleBase: string;
 
@@ -22,7 +23,7 @@ function readFiles(dir: string) {
 let globalOptions: any;
 let themePath: string;
 let dispatchEvent: Function;
-function initStylus(ezalModule: any, themeDir: string, eventDispatcher: Function) {
+function initStylus(ezalModule: EzalModule, themeDir: string, eventDispatcher: Function) {
   dispatchEvent = eventDispatcher;
   styleBase = path.join(themeDir, 'style');
   globalOptions = ezalModule;

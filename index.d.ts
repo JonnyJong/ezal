@@ -16,7 +16,7 @@ declare module 'ezal'{
    * Set pug option in HTML template
    */
   export let pug: {
-    [x: string | number | symbol] : any,
+    [x: string | number | symbol]: any,
   }
   /**
    * Set stylus option in CSS template
@@ -26,13 +26,13 @@ declare module 'ezal'{
      * Set variables that can be obtained in stylus by get('keyName.keyName')
      */
     var: {
-      [x: string | number | symbol] : any,
+      [x: string | number | symbol]: any,
     },
     /**
      * Set the functions that can be called in stylus
      */
     function: {
-      [x: string | number | symbol] : Function,
+      [x: string | number | symbol]: Function,
     }
   }
   export namespace render {
@@ -72,7 +72,7 @@ declare module 'ezal'{
    * Theme's config
    */
   export let theme: {
-    [x: string | number | symbol] : any,
+    [x: string | number | symbol]: any,
   }
   /**
    * Page object model
@@ -335,10 +335,41 @@ declare module 'ezal'{
    * Set marked code highlight extension
    * @param markedHighlight Marked code highlight extension
    */
-  export function setMarkedHighlight(markedHighlight: import('marked').marked.MarkedExtension):void
+  export function setMarkedHighlight(markedHighlight: import('marked').marked.MarkedExtension): void
   /**
    * Set marked extensions
    * @param markedExtensions Marked extensions
    */
-  export function setMarkedExtension(markedExtensions: import('marked').marked.MarkedExtension):void
+  export function setMarkedExtension(markedExtensions: import('marked').marked.MarkedExtension): void
+  
+  type MarkdownExtensionVariables = {
+    page?: Page | Post,
+    markdown: object,
+  }
+
+  export type MarkdownExtension = {
+    name: string,
+    level: 'block' | 'inline',
+    start(src: string, v?: MarkdownExtensionVariables): number | null | undefined | void | Promise<number | null | undefined | void>,
+    match(src: string, v?: MarkdownExtensionVariables): MarkdownMatched | null | undefined | void | Promise<MarkdownMatched | null | undefined | void>,
+    render(matched: MarkdownMatched, v?: MarkdownExtensionVariables): string | Promise<string>,
+    priority?: number,
+  }
+
+  export type MarkdownMatched = {
+    raw: string,
+    text: string,
+    args: string[],
+    arg: string,
+    [x: string | number | symbol]: any,
+  }
+
+  export type MarkdownTag = {
+    name: string,
+    level: 'block' | 'inline',
+    render(matched: MarkdownMatched, v?: MarkdownExtensionVariables): string | Promise<string>,
+    priority?: number,
+  }
+  export function setMarkdownExtension(markdownExtension: MarkdownExtension | MarkdownExtension[]): void
+  export function setMarkdownTag(markdownTag: MarkdownTag | MarkdownTag[]): void
 }

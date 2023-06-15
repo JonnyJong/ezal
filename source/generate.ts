@@ -1,5 +1,6 @@
 type Page = import('./page').Page;
 type Post = import('./page').Post;
+type EzalModule = import('./main').EzalModule;
 import { access, mkdir, writeFile } from 'fs/promises';
 import path from 'path';
 import pug from 'pug';
@@ -7,7 +8,7 @@ import pug from 'pug';
 let globalOptions: any;
 let themePath: string;
 let dispatchEvent: Function;
-function initPug(ezalModule: any, themeDir: string, eventDispatcher: Function) {
+function initPug(ezalModule: EzalModule, themeDir: string, eventDispatcher: Function) {
   globalOptions = ezalModule;
   themePath = themeDir;
   dispatchEvent = eventDispatcher;
