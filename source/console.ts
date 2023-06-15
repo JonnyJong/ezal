@@ -7,4 +7,7 @@ function error(...params:Array<any>) {
 function log(...params:Array<any>) {
   params.forEach((value)=>console.log(value));
 }
-export{info, error, log}
+function warn(...params:Array<any>) {
+  params.forEach((value)=>console.error('\x1b[43mWARN\x1b[0m ' + value));
+}
+export{info, error, log, warn}

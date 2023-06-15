@@ -27,7 +27,7 @@ function initRenderer(ezalModule: EzalModule, eventDispatcher: Function) {
   marked.use(markedHighlight({
     langPrefix: 'hljs language-',
     async: true,
-    highlight(code, lang){
+    highlight(code: string, lang: string){
       return hljs.highlightAuto(code, [lang]).value;
     }
   }));

@@ -4,7 +4,10 @@ import { access, constants, readFile } from "fs/promises";
 import path from "path";
 import { parse } from "yaml";
 
-const defaultConfig = `theme: default`
+const defaultConfig = `theme: default
+
+markdown:
+  heading_anchor_prefix: ''`
 
 const configPath = path.join(process.cwd(), 'config.yml');
 

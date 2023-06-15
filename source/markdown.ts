@@ -1,12 +1,12 @@
 // import { readFile, writeFile } from "fs/promises";
-import { inlineTagRender, blockTagRender, setMarkdownTag } from "./markdown/tag";
 // import path from "path";
+import { inlineTagRender, blockTagRender, setMarkdownTag } from "./markdown/tag";
 type EzalModule = import('./main').EzalModule;
 type Page = import('./page').Page;
 type Post = import('./page').Post;
 export type MarkdownExtensionVariables = {
   page?: Page | Post,
-  markdown: object,
+  markdown: any,
 };
 export type MarkdownExtension = {
   name: string,
@@ -19,8 +19,8 @@ export type MarkdownExtension = {
 export type MarkdownMatched = {
   raw: string,
   text: string,
-  args: string[],
-  arg: string,
+  args?: string[],
+  arg?: string,
   [x: string | number | symbol] : any,
 };
 type MarkdownExtensions = {
@@ -57,14 +57,23 @@ function setMarkdownExtension(exts: MarkdownExtension | MarkdownExtension[]) {
   });
 }
 
+function loadBuildInExtension() {
+  [
+    'heading',
+  ].forEach((name)=>{
+    setMarkdownExtension([require('./markdown/extension/' + name)]);
+  });
+}
+
 export function init(ezalModule: EzalModule) {
   ezalModule.setMarkdownExtension = setMarkdownExtension;
   ezalModule.setMarkdownTag = setMarkdownTag;
   extensions.inline['tag'] = inlineTagRender;
   extensions.block['tag'] = blockTagRender;
+  loadBuildInExtension();
 }
 
-async function matchBlocks(source: string, markdownV: object, lines: string[], page: Page | Post) {
+async function matchBlocks(source: string, markdownV: any, lines: string[], page: Page | Post) {
   let starts: StartIndexes = [];
   let matcheds: Matcheds = [];
   for (const name in extensions.block) {
@@ -107,7 +116,7 @@ async function matchBlocks(source: string, markdownV: object, lines: string[], p
   }
   return matcheds;
 }
-async function matchLines(source: string, markdownV: object, lines: string[], page: Page | Post) {
+async function matchLines(source: string, markdownV: any, lines: string[], page: Page | Post) {
   let matcheds: Matcheds[] = [];
   for (let i = 0; i < lines.length; i++) {
     if (typeof lines[i] !== 'string') continue;
@@ -153,7 +162,9 @@ async function matchLines(source: string, markdownV: object, lines: string[], pa
 
 export async function markdown(source: string, page: Page | Post) {
   source = source.replace(/\r/g, '');
-  let markdownV: object = {};
+  let markdownV: any = {
+    headingAnchor: [],
+  };
   let lines = source.split('\n');
   let blockMatcheds: Matcheds = await matchBlocks(source, markdownV, lines, page);
   let inlineMatcheds = await matchLines(source, markdownV, lines, page);

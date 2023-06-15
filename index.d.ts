@@ -67,6 +67,19 @@ declare module 'ezal'{
      * @readonly
      */
     const theme: string
+    const title: string
+    const subtitle: string
+    const description: string
+    const keywords: string[]
+    const author: string
+    const language: string
+    const host: string
+    const root: string
+    const timezone: string
+    const out_dir: string
+    const markdown: {
+      heading_anchor_prefix: string,
+    }
   }
   /**
    * Theme's config
@@ -334,36 +347,52 @@ declare module 'ezal'{
   /**
    * Set marked code highlight extension
    * @param markedHighlight Marked code highlight extension
+   * @deprecated Marked will be removed soon
    */
   export function setMarkedHighlight(markedHighlight: import('marked').marked.MarkedExtension): void
   /**
    * Set marked extensions
    * @param markedExtensions Marked extensions
+   * @deprecated Marked will be removed soon
    */
   export function setMarkedExtension(markedExtensions: import('marked').marked.MarkedExtension): void
-  
   type MarkdownExtensionVariables = {
     page?: Page | Post,
-    markdown: object,
+    markdown: any,
   }
-
   export type MarkdownExtension = {
     name: string,
     level: 'block' | 'inline',
+    /**
+     * Match start index
+     * @param src Source string
+     * @param v Page and Markdown variables
+     */
     start(src: string, v?: MarkdownExtensionVariables): number | null | undefined | void | Promise<number | null | undefined | void>,
+    /**
+     * Confirm and match the syntax-compliant strings
+     * @param src Source string
+     * @param v Page and Markdown variables
+     */
     match(src: string, v?: MarkdownExtensionVariables): MarkdownMatched | null | undefined | void | Promise<MarkdownMatched | null | undefined | void>,
+    /**
+     * Render matched result to HTML string
+     * @param matched Matched result
+     * @param v Page and Markdown variables
+     */
     render(matched: MarkdownMatched, v?: MarkdownExtensionVariables): string | Promise<string>,
     priority?: number,
   }
-
   export type MarkdownMatched = {
+    /**
+     * Matched raw string
+     */
     raw: string,
-    text: string,
-    args: string[],
-    arg: string,
+    text?: string,
+    args?: string[],
+    arg?: string,
     [x: string | number | symbol]: any,
   }
-
   export type MarkdownTag = {
     name: string,
     level: 'block' | 'inline',
