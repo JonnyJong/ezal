@@ -1,6 +1,8 @@
 // import { readFile, writeFile } from "fs/promises";
 // import path from "path";
+import { warn } from "./console";
 import { inlineTagRender, blockTagRender, setMarkdownTag } from "./markdown/tag";
+import hljs from "highlight.js";
 type EzalModule = import('./main').EzalModule;
 type Page = import('./page').Page;
 type Post = import('./page').Post;
@@ -42,6 +44,14 @@ let extensions: MarkdownExtensions = {
   block: {},
 };
 
+function getDefaultMarkdownV() {
+  return{
+    anchors: {},
+    quoteLink: {},
+    footnote: {},
+  };
+}
+
 function setMarkdownExtension(exts: MarkdownExtension | MarkdownExtension[]) {
   if (typeof exts !== 'object') throw new Error('Need MarkdownExtension.');
   if (exts !instanceof Array) exts = [(exts as unknown as MarkdownExtension)];
@@ -60,8 +70,23 @@ function setMarkdownExtension(exts: MarkdownExtension | MarkdownExtension[]) {
 function loadBuildInExtension() {
   [
     'heading',
+    'text-style',
+    'blockquote',
+    'list',
+    'code',
+    'codeblock',
+    'hr',
+    'link',
+    'image',
+    'escape',
+    'html',
+    'table',
+    // 'footnote',
+    // 'dl',
+    // 'task',
+    // 'emoji',
   ].forEach((name)=>{
-    setMarkdownExtension([require('./markdown/extension/' + name)]);
+    setMarkdownExtension(require('./markdown/extension/' + name));
   });
 }
 
@@ -71,16 +96,21 @@ export function init(ezalModule: EzalModule) {
   extensions.inline['tag'] = inlineTagRender;
   extensions.block['tag'] = blockTagRender;
   loadBuildInExtension();
+  ezalModule.render.codeblock = function render(matched: MarkdownMatched, _v: MarkdownExtensionVariables) {
+    let lang = (matched.args && matched.args[0]) ? [matched.args[0]] : undefined;
+    let result = hljs.highlightAuto(matched.text, lang);
+    return`<pre><code class="${ezalModule.config.markdown.highlight_prefix}${result.language}"></code>${result.value}</pre>`
+  };
 }
 
-async function matchBlocks(source: string, markdownV: any, lines: string[], page: Page | Post) {
+async function matchBlocks(source: string, markdownV: any, lines: string[], page: Page | Post | void) {
   let starts: StartIndexes = [];
   let matcheds: Matcheds = [];
   for (const name in extensions.block) {
     let str = source;
     let offset = 0;
     while (Object.prototype.hasOwnProperty.call(extensions.block, name)) {
-      let index = await extensions.block[name].start(source, { page, markdown: markdownV });
+      let index = await extensions.block[name].start(source, { page: page ? page : undefined, markdown: markdownV });
       if (typeof index !== 'number' || index < 0) break;
       if (starts[index + offset]) {
         starts[index + offset].push(name);
@@ -97,7 +127,7 @@ async function matchBlocks(source: string, markdownV: any, lines: string[], page
   for (let i = 0; i < starts.length; i++) {
     if (!starts[i]) continue;
     for (const name of starts[i]) {
-      let matched = await extensions.block[name].match(source.slice(i), { page, markdown: markdownV });
+      let matched = await extensions.block[name].match(source.slice(i), { page: page ? page : undefined, markdown: markdownV });
       if (!matched) continue;
       matcheds[i] = {
         matched,
@@ -116,7 +146,7 @@ async function matchBlocks(source: string, markdownV: any, lines: string[], page
   }
   return matcheds;
 }
-async function matchLines(source: string, markdownV: any, lines: string[], page: Page | Post) {
+async function matchLines(source: string, markdownV: any, lines: string[], page: Page | Post | void) {
   let matcheds: Matcheds[] = [];
   for (let i = 0; i < lines.length; i++) {
     if (typeof lines[i] !== 'string') continue;
@@ -126,7 +156,7 @@ async function matchLines(source: string, markdownV: any, lines: string[], page:
       let str = source;
       let offset = 0;
       while (Object.prototype.hasOwnProperty.call(extensions.inline, name)) {
-        let index = await extensions.inline[name].start(lines[i], { page, markdown: markdownV });
+        let index = await extensions.inline[name].start(lines[i], { page: page ? page : undefined, markdown: markdownV });
         if (typeof index !== 'number' || index < 0) continue;
         if (starts[index + offset]) {
           starts[index + offset].push(name);
@@ -143,7 +173,7 @@ async function matchLines(source: string, markdownV: any, lines: string[], page:
     for (let i = 0; i < starts.length; i++) {
       if (!starts[i]) continue;
       for (const name of starts[i]) {
-        let matched = await extensions.inline[name].match(lines[i], { page, markdown: markdownV });
+        let matched = await extensions.inline[name].match(lines[i], { page: page ? page : undefined, markdown: markdownV });
         if (!matched) continue;
         lineMatcheds[i] = {
           matched,
@@ -160,14 +190,37 @@ async function matchLines(source: string, markdownV: any, lines: string[], page:
   return matcheds;
 }
 
-export async function markdown(source: string, page: Page | Post) {
+export async function markdownLine(source: string, v: MarkdownExtensionVariables | null | undefined | void = {markdown: getDefaultMarkdownV()}) {
   source = source.replace(/\r/g, '');
-  let markdownV: any = {
-    headingAnchor: [],
-  };
   let lines = source.split('\n');
-  let blockMatcheds: Matcheds = await matchBlocks(source, markdownV, lines, page);
-  let inlineMatcheds = await matchLines(source, markdownV, lines, page);
+  if (lines.length > 1) {
+    warn('markdownLine receives two or more lines of source and only render the first line.');
+  }
+  let line = lines[0].trim();
+  let inlineMatcheds = await matchLines(line, v?.markdown, [line], v?.page);
+  let context = '';
+  if (inlineMatcheds[0] && inlineMatcheds[0].length > 0){
+    let charBegin = 0
+    // j: index of char in line
+    for (let j = 0; j < inlineMatcheds[0].length; j++) {
+      if (!inlineMatcheds[0][j]) continue;
+      line += lines[0].slice(charBegin, j);
+      charBegin = inlineMatcheds[0][j].matched.raw.length + j;
+      line += await extensions.inline[inlineMatcheds[0][j].name].render(inlineMatcheds[0][j].matched, { page: v?.page, markdown: v?.markdown });
+      j = charBegin;
+    }
+    context += line;
+  } else {
+    context = line;
+  }
+  return { context, variables: markdown };
+}
+
+export async function markdown(source: string, v: MarkdownExtensionVariables | null | undefined | void = {markdown: getDefaultMarkdownV()}) {
+  source = source.replace(/\r/g, '');
+  let lines = source.split('\n');
+  let blockMatcheds: Matcheds = await matchBlocks(source, v?.markdown, lines, v?.page);
+  let inlineMatcheds = await matchLines(source, v?.markdown, lines, v?.page);
   let context = '';
   let partBegin = false;
   // i: index of line in source
@@ -177,7 +230,7 @@ export async function markdown(source: string, page: Page | Post) {
         context += '</p>';
         partBegin = false;
       }
-      context += await extensions.block[blockMatcheds[i].name].render(blockMatcheds[i].matched, { page, markdown: markdownV });
+      context += await extensions.block[blockMatcheds[i].name].render(blockMatcheds[i].matched, { page: v?.page, markdown: v?.markdown });
       continue;
     }
     if (lines[i] === '') {
@@ -201,7 +254,7 @@ export async function markdown(source: string, page: Page | Post) {
         if (!inlineMatcheds[i][j]) continue;
         line += lines[i].slice(charBegin, j);
         charBegin = inlineMatcheds[i][j].matched.raw.length + j;
-        line += await extensions.inline[inlineMatcheds[i][j].name].render(inlineMatcheds[i][j].matched, { page, markdown: markdownV });
+        line += await extensions.inline[inlineMatcheds[i][j].name].render(inlineMatcheds[i][j].matched, { page: v?.page, markdown: v?.markdown });
         j = charBegin;
       }
       context += line;
@@ -212,7 +265,7 @@ export async function markdown(source: string, page: Page | Post) {
   if (partBegin) {
     context += '</p>';
   }
-  return context;
+  return { context, variables: markdown };
 }
 
 // TODO: for test, delete later

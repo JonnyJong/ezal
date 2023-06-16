@@ -56,6 +56,11 @@ declare module 'ezal'{
      * @returns CSS string
      */
     function stylus(stylusContext: string, options: any): Promise<string>
+    /**
+     * Render and wrap codeblock
+     * Modify this function to customize the codeblock
+     */
+    let codeblock: (matched: MarkdownMatched, v: MarkdownExtensionVariables)=>string
   }
   /**
    * Ezal's config
@@ -79,6 +84,8 @@ declare module 'ezal'{
     const out_dir: string
     const markdown: {
       heading_anchor_prefix: string,
+      highlight_prefix: string,
+      footnote_classname: string,
     }
   }
   /**
@@ -358,6 +365,9 @@ declare module 'ezal'{
   export function setMarkedExtension(markedExtensions: import('marked').marked.MarkedExtension): void
   type MarkdownExtensionVariables = {
     page?: Page | Post,
+    /**
+     * Shared variables when rendering markdown
+     */
     markdown: any,
   }
   export type MarkdownExtension = {

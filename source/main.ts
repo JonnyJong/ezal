@@ -15,6 +15,8 @@ import Module from "module";
 import { loadScript } from "./script-loader";
 type CategoryRoot = import("./category").CategoryRoot;
 type Tags = import("./tag").Tags;
+type MarkdownMatched = import('./markdown').MarkdownMatched;
+type MarkdownExtensionVariables = import('./markdown').MarkdownExtensionVariables;
 export type EzalModule = {
   addListener: Function;
   pug: object;
@@ -26,6 +28,7 @@ export type EzalModule = {
     markdown?: Function;
     pug?: Function;
     stylus?: Function;
+    codeblock?: (matched: MarkdownMatched, v: MarkdownExtensionVariables)=>string,
   };
   config: any;
   theme: any;
