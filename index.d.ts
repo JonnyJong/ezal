@@ -86,6 +86,7 @@ declare module 'ezal'{
       heading_anchor_prefix: string,
       highlight_prefix: string,
       footnote_classname: string,
+      task_list_classname: string,
     }
   }
   /**

@@ -81,10 +81,10 @@ function loadBuildInExtension() {
     'escape',
     'html',
     'table',
-    // 'footnote',
-    // 'dl',
-    // 'task',
-    // 'emoji',
+    'footnote',
+    'dl',
+    'task',
+    'emoji',
   ].forEach((name)=>{
     setMarkdownExtension(require('./markdown/extension/' + name));
   });
