@@ -16,6 +16,10 @@ declare module 'ezal'{
    * Set pug option in HTML template
    */
   export let pug: {
+    url_for(src: string): string,
+    full_url_for(src: string): string,
+    now(): Date,
+    parseDate(date: any, format: string | undefined | void, option: void | undefined | DateTemplate): string,
     [x: string | number | symbol]: any,
   }
   /**
@@ -80,7 +84,7 @@ declare module 'ezal'{
     const language: string
     const host: string
     const root: string
-    const timezone: string
+    const timezone: number
     const out_dir: string
     const markdown: {
       heading_anchor_prefix: string,
@@ -352,18 +356,6 @@ declare module 'ezal'{
    * All the tags
    */
   export let tags: Tags | Set<Tag>;
-  /**
-   * Set marked code highlight extension
-   * @param markedHighlight Marked code highlight extension
-   * @deprecated Marked will be removed soon
-   */
-  export function setMarkedHighlight(markedHighlight: import('marked').marked.MarkedExtension): void
-  /**
-   * Set marked extensions
-   * @param markedExtensions Marked extensions
-   * @deprecated Marked will be removed soon
-   */
-  export function setMarkedExtension(markedExtensions: import('marked').marked.MarkedExtension): void
   type MarkdownExtensionVariables = {
     page?: Page | Post,
     /**
@@ -412,4 +404,21 @@ declare module 'ezal'{
   }
   export function setMarkdownExtension(markdownExtension: MarkdownExtension | MarkdownExtension[]): void
   export function setMarkdownTag(markdownTag: MarkdownTag | MarkdownTag[]): void
+  export const locale: any
+  type DateTemplate = {
+    D: [string, string, string, string, string, string, string],
+    DD: [string, string, string, string, string, string, string],
+    MMM: [string, string, string, string, string, string, string, string, string, string, string, string],
+    MMMM: [string, string, string, string, string, string, string, string, string, string, string, string],
+    AP: [string, string],
+    ap: [string, string],
+  }
+  export namespace util{
+    function HTMLEncode(src: string): string
+    function url_for(src: string): string
+    function full_url_for(src: string): string
+    function now(): Date
+    function parseDate(date: any, format: string | undefined | void, option: void | undefined | DateTemplate): string
+    function setDateTemplate(option: DateTemplate): void
+  }
 }

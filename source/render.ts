@@ -1,51 +1,21 @@
 type Page = import('./page').Page;
 type Post = import('./page').Post;
 type EzalModule = import('./main').EzalModule;
-import { marked } from "marked";
-import hljs from "highlight.js";
-// @ts-ignore
-import { markedHighlight } from "marked-highlight";
-// @ts-ignore
-import { mangle } from "marked-mangle";
-// @ts-ignore
-import { gfmHeadingId } from "marked-gfm-heading-id";
+import { init, markdown, markdownLine, getDefaultMarkdownV } from "./markdown";
 
 let dispatchEvent: Function;
 function initRenderer(ezalModule: EzalModule, eventDispatcher: Function) {
   dispatchEvent = eventDispatcher;
-  marked.setOptions({
-    async: true,
-    breaks: true,
-    gfm: true,
-    // @ts-ignore
-    tables: true,
-  });
-  marked.use(mangle());
-  marked.use(gfmHeadingId({
-    perfix: '',
-  }));
-  marked.use(markedHighlight({
-    langPrefix: 'hljs language-',
-    async: true,
-    highlight(code: string, lang: string){
-      return hljs.highlightAuto(code, [lang]).value;
-    }
-  }));
-  ezalModule.setMarkedHighlight = function(markedHighlight: marked.MarkedExtension) {
-    marked.use(markedHighlight);
-  };
-  ezalModule.setMarkedExtension = function(markedExtensions: marked.MarkedExtension){
-    marked.use(markedExtensions);
-  };
-  ezalModule.render.markdown = function(source: string){
-    return marked(source);
-  };
+  init(ezalModule);
+  ezalModule.render.markdown = markdown;
+  ezalModule.render.markdownLine = markdownLine;
 }
 
 async function render(page: Page | Post) {
   await dispatchEvent('pre-render', page);
-  page.context = await marked(page.source);
-  await dispatchEvent('post-render', page);
+  let result = await markdown(page.source, { page, markdown: getDefaultMarkdownV() });
+  page.context = result.context;
+  await dispatchEvent('post-render', page, result.variables);
   return page;
 }
 async function renderAll(pages: Array<Page | Post>) {

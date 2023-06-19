@@ -1,13 +1,26 @@
 import { error, info } from "./console";
-import { writeFile } from "fs/promises";
-import { access, constants, readFile } from "fs/promises";
+import { writeFile, access, constants, readFile } from "fs/promises";
 import path from "path";
 import { parse } from "yaml";
 
 const defaultConfig = `theme: default
 
+title: ''
+subtitle: ''
+description: ''
+keywords: []
+author: ''
+language: ''
+host: ''
+root: ''
+timezone: 0
+out_dir: ''
+
 markdown:
-  heading_anchor_prefix: ''`
+  heading_anchor_prefix: ''
+  highlight_prefix: ''
+  footnote_classname: ''
+  task_list_classname: ''`
 
 const configPath = path.join(process.cwd(), 'config.yml');
 

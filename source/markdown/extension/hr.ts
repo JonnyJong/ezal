@@ -4,7 +4,7 @@ const hr: MarkdownExtension = {
   priority: 0,
   start(src) {
     let a = src.match(/(^|(?<=\n))[\*\-_]{3,}\s/)?.index;
-    if (typeof a === 'string') return a;
+    if (typeof a === 'number') return a;
     return src.match(/(^|(?<=\n))[\*\-_]{3,}$/)?.index;
   },
   match(src) {

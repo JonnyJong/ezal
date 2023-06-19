@@ -6,28 +6,22 @@ const codeblock: MarkdownExtension = {
   level: 'block',
   priority: 0,
   start(src) {
-    return src.match(/(^|(?<=\n))[    |\t]{1}(.*)\n/)?.index;
+    return src.match(/(^|(?<=\n))(    |\t)(.*)(\n(    |\t)(.*))*/)?.index;
   },
   match(src) {
-    let lines = src.split('\n');
-    let end = 1;
-    for (const line of lines) {
-      if (line.match(/(    |\t)/)?.index !== 0) break;
-      end++;
-    }
-    let rawLines = lines.slice(0, end);
-    let raw = rawLines.join('\n');
+    let raw = src.match(/(^|(?<=\n))(    |\t)(.*)(\n(    |\t)(.*))*/)?.[0];
+    if (!raw) return;
     let text = '';
-    for (const line of rawLines) {
-      text += line.slice(line.match(/(    |\t)/)?.[0].length);
+    for (const line of raw.split('\n')) {
+      text += '\n' + line.slice((line.match(/^(    |\t)/) as string[])[0].length);
     }
     return{
       raw,
-      text,
+      text: text.slice(1),
     };
   },
   render(matched, v) {
-    return render.codeblock(matched, (v as MarkdownExtensionVariables));
+    return render.codeblock(matched, v);
   },
 };
 const fenceCodeblock: MarkdownExtension = {
@@ -35,26 +29,20 @@ const fenceCodeblock: MarkdownExtension = {
   level: 'block',
   priority: 0,
   start(src) {
-    return src.match(/(^|(?<=\n))[```|~~~]{1}(.*)/)?.index;
+    return src.match(/(^|(?<=\n))(```|~~~)(.*)\n([\S\s]*?)\n(```|~~~)/)?.index;
   },
   match(src) {
-    let lines = src.split('\n');
-    let symbol = lines[0].split('\n')[0];
-    let end = lines.indexOf(symbol + symbol + symbol);
-    if (!end) return;
-    let raw = lines.slice(0, end + 1).join('\n');
-    let text = lines.slice(1, end).join('\n');
-    let arg = lines[0].slice(3);
-    let args = arg.split(' ');
-    return {
-      raw,
-      text,
-      arg,
-      args,
+    let matched = src.match(/(^|(?<=\n))(```|~~~)(.*)\n([\S\s]*?)\n(```|~~~)/);
+    if (!matched) return;
+    return{
+      raw: matched[0],
+      text: matched[4],
+      arg: matched[3],
+      args: matched[3].split(' '),
     };
   },
   render(matched, v) {
-    return render.codeblock(matched, (v as MarkdownExtensionVariables));
+    return render.codeblock(matched, v);
   },
 };
 module.exports = [codeblock, fenceCodeblock];

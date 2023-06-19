@@ -8,6 +8,6 @@ function log(...params:Array<any>) {
   params.forEach((value)=>console.log(value));
 }
 function warn(...params:Array<any>) {
-  params.forEach((value)=>console.error('\x1b[43mWARN\x1b[0m ' + value));
+  params.forEach((value)=>console.warn('\x1b[43mWARN\x1b[0m ' + value));
 }
 export{info, error, log, warn}

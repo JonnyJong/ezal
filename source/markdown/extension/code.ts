@@ -4,24 +4,39 @@ const code: MarkdownExtension = {
   level: 'inline',
   priority: 0,
   start(src){
-    return src.match(/`{1,2}[^`](.*?)`{1,2}/)?.index;
+    return src.match(/`[^`](.*?)`/)?.index;
   },
   match(src) {
-    let raw = src.match(/`{1,2}[^`](.*?)`{1,2}/)?.[0];
+    let raw = src.match(/`[^`](.*?)`/)?.[0];
     if (!raw) return;
-    let double = raw.indexOf('``') === 0;
-    if (double && raw.lastIndexOf('``') !== raw.length - 2) return;
     let text = raw.slice(1, raw.length - 1);
-    if (double) {
-      text = text.slice(1, text.length -1);
-    }
     return{
       raw,
       text,
     };
   },
   render(matched) {
-    return `<pre><code>${matched.text}</code></pre>`
+    return `<code>${matched.text}</code>`
   },
 };
-module.exports = code;
+const doubleCode: MarkdownExtension = {
+  name: 'code-double',
+  level: 'inline',
+  priority: 1,
+  start(src){
+    return src.match(/``[^`](.*?)``/)?.index;
+  },
+  match(src) {
+    let raw = src.match(/``[^`](.*?)``/)?.[0];
+    if (!raw) return;
+    let text = raw.slice(2, raw.length - 2);
+    return{
+      raw,
+      text,
+    };
+  },
+  render(matched) {
+    return `<code>${matched.text}</code>`
+  },
+}
+module.exports = [code, doubleCode];

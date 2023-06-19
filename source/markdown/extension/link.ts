@@ -52,7 +52,7 @@ const link: MarkdownExtension = {
     if (!matched) return;
     let body = matched[2].split(' ');
     let link = body[0];
-    let title = body[1];
+    let title = body.slice(1).join(' ');
     if (title && (/^"(.*)"$/.test(title) || /^'(.*)'$/.test(title))) {
       title = title.slice(1, title.length - 1);
     }
@@ -63,8 +63,8 @@ const link: MarkdownExtension = {
       title,
     };
   },
-  render(matched){
-    return`<a href="${matched.link}"${matched.title ? ' title="' + matched.title + '"' : ''}>${markdownLine(matched.text)}</a>`;
+  async render(matched){
+    return`<a href="${matched.link}"${matched.title ? ' title="' + matched.title + '"' : ''}>${(await markdownLine(matched.text)).context}</a>`;
   }
 };
 const quoteLink: MarkdownExtension = {
@@ -85,48 +85,70 @@ const quoteLink: MarkdownExtension = {
     };
   },
   async render(matched, v) {
-    let link = v?.markdown.quoteLink[(matched.arg as unknown as number)];
+    let link = v.markdown.quoteLink[(matched.arg as unknown as number)];
     if (!link) {
-      warn(`Can not found quote link '${(matched.arg as unknown as number)}' in '${v?.page?.path}'`);
+      warn(`Can not found quote link '${(matched.arg as unknown as number)}' in '${v.page?.path}'`);
     }
     return`<a href="${link}">${(await markdownLine(matched.text)).context}</a>`;
   },
 };
+function parseQuoteLinkSource(src: string, v: any) {
+  let matched = src.match(/\[(.*)\]\:(.*)/);
+  let body = (matched as string[])[2].trim().split(' ');
+  let id = (matched as string[])[1];
+  let link = body[0];
+  let title = body.slice(1).join(' ');
+  if (link.indexOf('<') === 0 && link.lastIndexOf('>') === link.length - 1) {
+    link = link.slice(1, link.length - 1);
+  }
+  if (title) {
+    if (/^"(.*)"$/.test(title) || /^'(.*)'$/.test(title) || /\((.*)\)$/.test(title)) {
+      title = title.slice(1, title.length - 1);
+    }
+  }
+  if (id in v.markdown.quoteLink) {
+    warn(`Same id '${id}' in '${v.page?.path}', `);
+  }
+  v.markdown.quoteLink[id] = link;
+  return[id, link, title];
+}
 const quoteLinkSource: MarkdownExtension = {
   name: 'quote-link-source',
   level: 'block',
   priority: 0,
   start(src) {
-    return src.match(/\[(.*)\]\: (.*)/)?.index;
+    return src.match(/(^|(?<=\n))\[(.*)\]\:(.*)(\n\[(.*)\]\:(.*))*/)?.index;
   },
   match(src, v) {
-    let matched = src.match(/\[(.*)\]\:(.*)/);
+    let matched = src.match(/(^|(?<=\n))\[(.*)\]\:(.*)(\n\[(.*)\]\:(.*))*/);
     if (!matched) return;
-    if (matched[1].indexOf('^') === 0) return;
-    let body = matched[2].split(' ');
-    let id = matched[1]
-    let link = body[0];
-    let title = body[1];
-    if (link.indexOf('<') === 0 && link.lastIndexOf('>') === link.length - 1) {
-      link = link.slice(1, link.length - 1);
+    let lines = matched[0].split('\n');
+    let rawLines = [];
+    let items = [];
+    for (const line of lines) {
+      if (line.indexOf('[^') === 0) break;
+      rawLines.push(line);
+      items.push(parseQuoteLinkSource(line, v));
     }
-    if (title) {
-      if (/^"(.*)"$/.test(title) || /^'(.*)'$/.test(title) || /\<"(.*)\>$/.test(title)) {
-        title = title.slice(1, title.length - 1);
-      }
-    }
-    if (id in v?.markdown.quoteLink) {
-      warn(`Same id '${id}' in '${v?.page?.path}', `);
-    }
-    (v as MarkdownExtensionVariables).markdown.quoteLink[id] = link;
+    if (rawLines.length === 0) return;
     return{
-      raw: matched[0],
-      text: matched[2],
-      args: [id, link, title],
+      raw: rawLines.join('\n'),
+      text: '',
+      items,
     };
   },
-  async render(matched) {
-    return`<a href="${(matched.args as string[])[1]}">${(await markdownLine((matched.args as string[])[2] ? (matched.args as string[])[2] : (matched.args as string[])[1])).context}</a>`
+  render(matched) {
+    let html = '';
+    for (const item of matched.items) {
+      html += `<dt>${item[2] ? item[2] : item[0]}</dt><dd><a href="${item[1]}">${item[1]}</a></dd>`;
+    }
+    return`<dl>${html}</dl>`;
   },
 }
-module.exports = [pointedBracketLink, pointedBracketEmail, link, quoteLink, quoteLinkSource];
+module.exports = [
+  pointedBracketLink,
+  pointedBracketEmail,
+  link,
+  quoteLink,
+  quoteLinkSource,
+];

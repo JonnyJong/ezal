@@ -18,50 +18,56 @@ const footnote: MarkdownExtension = {
     };
   },
   render(matched, v){
-    return`<a class="${config.markdown.footnote_classname}" href="#${v?.markdown.footnote[matched.text]}">${matched.text}</a>`;
+    return`<a class="${config.markdown.footnote_classname}" href="#${v.markdown.footnote[matched.text]}">${matched.text}</a>`;
   },
 };
+function getFootnoteUrl(id: string, v: any) {
+  let url = id;
+  if (v.markdown.anchors[id]) {
+    v.markdown.anchors[id]++;
+    url += '-' + v.markdown.anchors[id];
+  }else{
+    v.markdown.anchors[id] = 0;
+  }
+  if (v.markdown.footnote[id]) {
+    warn(`Same footnote id '${id}' in '${v.page?.path}'`);
+  }
+  v.markdown.footnote[id] = url;
+  return url;
+}
 const footnoteSource: MarkdownExtension = {
   name: 'footnote-source',
   level: 'block',
   priority: 0,
   start(src){
-    return src.match(/(^|(?<=\n))\[\^(.*)\]\: (.*)/)?.index;
+    return src.match(/(^|(?<=\n))\[\^(.*)\]\: (.*)(\n(  |\t)(.*))*(\n\[\^(.*)\]\: (.*)(\n(  |\t)(.*))*)*/)?.index;
   },
   match(src, v){
-    let matched = src.match(/(^|(?<=\n))\[\^(.*)\]\: (.*)/);
-    if (!matched) return;
-    let lines = src.split('\n').slice();
-    let text = matched[3] + '\n';
-    let id = matched[2];
-    let end = 0;
-    for (const line of lines) {
-      let space = line.match(/(  |\t)/);
-      if (!space) break;
-      end++;
-      text += line.slice(space[0].length) + '\n';
+    let raw = src.match(/(^|(?<=\n))\[\^(.*)\]\: (.*)(\n(  |\t)(.*))*(\n\[\^(.*)\]\: (.*)(\n(  |\t)(.*))*)*/)?.[0];
+    if (!raw) return;
+    let items = [];
+    let item = {text: '', id: '', url: ''};
+    for (const line of raw.split('\n')) {
+      let lineMatched = line.match(/^\[\^(.*)\]: (.*)/);
+      if (lineMatched) {
+        item = {text: lineMatched[2], id: lineMatched[1], url: getFootnoteUrl(lineMatched[1], v)};
+        items.push(item);
+        continue;
+      }
+      item.text += '\n' + line;
     }
-    let raw = matched[0] + '\n' + lines.slice(0, end).join('\n');
-    let url = id;
-    if (v?.markdown.anchors[id]) {
-      url += '-' + v.markdown.anchors[id];
-      v.markdown.anchors[id]++;
-    }else{
-      (v as any).markdown.anchors[id] = 0;
-    }
-    if (v?.markdown.footnote[id]) {
-      warn(`Same footnote id '${id}' in '${v.page?.path}'`);
-    }
-    (v as any).markdown.footnote[id] = url;
     return{
       raw,
-      text,
-      id,
-      url,
+      text: '',
+      items,
     };
   },
   async render(matched, v){
-    return`<dl><dt id="#${matched.url}">${matched.id}</dt><dd>${(await markdown(matched.text, v)).context}</dd></dl>`;
+    let html = '';
+    for (const item of matched.items) {
+      html += `<dt id=""${item.url}>${item.id}</dt><dd>${(await markdown(item.text, v, false)).context}</dd>`;
+    }
+    return`<dl>${html}</dl>`;
   },
 };
 module.exports = [footnote, footnoteSource];

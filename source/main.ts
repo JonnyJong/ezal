@@ -13,6 +13,7 @@ import init from "./init";
 import path from "path";
 import Module from "module";
 import { loadScript } from "./script-loader";
+import util from "./util";
 type CategoryRoot = import("./category").CategoryRoot;
 type Tags = import("./tag").Tags;
 type MarkdownMatched = import('./markdown').MarkdownMatched;
@@ -26,6 +27,7 @@ export type EzalModule = {
   };
   render: {
     markdown?: Function;
+    markdownLine?: Function;
     pug?: Function;
     stylus?: Function;
     codeblock?: (matched: MarkdownMatched, v: MarkdownExtensionVariables)=>string,
@@ -38,17 +40,21 @@ export type EzalModule = {
   posts: Set<import('./page').Post>;
   categories:  CategoryRoot;
   tags: Tags;
-  setMarkedHighlight?: Function,
-  setMarkedExtension?: Function,
   setMarkdownExtension?: Function,
   setMarkdownTag?:Function,
+  util: any,
 };
 
 let ezalModule: EzalModule = {
   // event
   addListener,
   // pug objects
-  pug: {},
+  pug: {
+    url_for: util.url_for,
+    full_url_for: util.full_url_for,
+    now: util.now,
+    parseDate: util.parseDate,
+  },
   // stylus objects
   stylus: {var:{}, function: {}},
   // render functions
@@ -63,6 +69,7 @@ let ezalModule: EzalModule = {
   posts,
   categories: categoriesRoot,
   tags,
+  util,
 };
 
 function initEzalModule() {

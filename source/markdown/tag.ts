@@ -76,7 +76,7 @@ let blockTagRender: MarkdownExtension = {
 
 function setMarkdownTag(exts: MarkdownTag | MarkdownTag[]) {
   if (typeof exts !== 'object') throw new Error('Need MarkdownTag.');
-  if (exts !instanceof Array) exts = [(exts as unknown as MarkdownTag)];
+  if (!Array.isArray(exts)) exts = [(exts as unknown as MarkdownTag)];
   (exts as MarkdownTag[]).forEach((ext)=>{
     if (!ext.name) throw new Error('MarkdownTag need a name.');
     if (ext.name !== ext.name.match(/[A-Za-z]+/)?.[0]) throw new Error('MarkdownTag name should only use A-Z and a-z.');

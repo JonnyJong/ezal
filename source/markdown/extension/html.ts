@@ -1,4 +1,3 @@
-
 const html: MarkdownExtension = {
   name: 'html',
   level: 'inline',

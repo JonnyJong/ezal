@@ -1,77 +1,88 @@
 import { config } from "ezal";
 import { warn } from "../../console";
-import { HTMLEncode } from "ezal/source/util";
+import { HTMLEncode } from "../../util";
 type MarkdownExtension = import('../../markdown').MarkdownExtension;
-type MarkdownMatched = import('../../markdown').MarkdownMatched;
-type MatchResult = MarkdownMatched | null | undefined | void
 
-function sharpHeading(src: string, level: number): MatchResult {
-  let raw = src.split('\n')[0];
-  let text = raw.slice(level).trim();
-  if (text.match(new RegExp('#{' + level + '}$'))) {
-    text = text.slice(0, text.length - level).trim();
-  }
-  let customId = text.match(/(?<= ){#[A-Za-z0-9|_|\-]+}/);
-  if (customId) {
-    text = text.slice(0, text.length - customId[0].length).trim();
+function getCustomId(text: string) {
+  let id = text.match(/(?<= ){#([A-Za-z0-9|_|\-]+)}/)?.[1];
+  if (id) {
+    return{
+      text: text.slice(0, text.length - 4 - id.length),
+      customId: id,
+    };
   }
   return{
-    raw,
     text,
-    customId: customId ? customId[0].slice(2, customId[0].length - 1) : undefined,
-    level,
   };
 }
-function underlineHeading(src: string): MatchResult {
-  let raw = src.match(/(.+)\n[=|\-]{3,}(\n)?/)?.[0];
-  if (!raw) return;
-  let lines = raw.split('\n')
-  let underline = lines[1].split('')[0];
-  if (lines[1].match(new RegExp('[' + underline + ']{3,}'))?.[0].length !== lines[1].length) return;
-  let text = lines[0];
-  let customId = text.match(/(?<= ){#[A-Za-z0-9|_|\-]+}/);
-  if (customId) {
-    text = text.slice(0, text.length - customId[0].length).trim();
+
+function renderHeading(matched: any, v: any): string {
+  let anchor = encodeURI(matched.text.toLowerCase().replace(/[^A-Za-z0-9 \-]/g,'').trim().replace(/ /g, '-').replace(/\-{2,}/g, '-'));
+  if (matched.customId) {
+    if (v.markdown.anchors[matched.customId]) {
+      warn(`Same anchor "${anchor}" in "${v.page?.path}"`);
+    }
+    anchor = matched.customId;
+  }else if (typeof v.markdown.anchors[anchor] === 'number') {
+    v.markdown.anchors[anchor]++;
+    anchor += '-' + v.markdown.anchors[anchor];
+  }else{
+    v.markdown.anchors[anchor] = 0;
   }
-  return{
-    raw,
-    text,
-    customId: customId ? customId[0].slice(2, customId[0].length - 1) : undefined,
-    level: underline === '=' ? 2 : 1,
-  }
+  return`<h${matched.level} id="${config.markdown.heading_anchor_prefix}${anchor}">${matched.text}</h${matched.level}>`;
 }
 
-export const heading: MarkdownExtension = {
+const heading: MarkdownExtension = {
   name: 'heading',
   priority: 0,
   level: 'block',
   start(src) {
-    let a = src.match(/(^|(?<=\n))#{1,6} (.*)/)?.index;
-    let b = src.match(/(.+)\n[=|\-]{3,}(\n)?/)?.index;
-    if (typeof a !== 'number' && typeof b !== 'number') return;
-    a = typeof a === 'number' ? a : Infinity;
-    b = typeof b === 'number' ? b : Infinity;
-    return Math.min(a, b);
+    return src.match(/(^|(?<=\n))#{1,6} (.*)/)?.index;
   },
   match(src) {
-    let level = src.match(/#{1,6}/)?.[0].length;
-    if (level) return sharpHeading(src, level);
-    return underlineHeading(src);
+    let raw = src.match(/(^|(?<=\n))#{1,6} (.*)/)?.[0];
+    if (!raw) return;
+    let level = (src.match(/#{1,6}/) as string[])[0].length;
+    let textOrigin = raw.slice(level)
+    if (textOrigin.match(new RegExp('#{' + level + '}$'))) {
+      textOrigin = textOrigin.slice(0, textOrigin.length - level);
+    }
+    textOrigin = textOrigin.trim();
+    let {text, customId} = getCustomId(textOrigin);
+    return{
+      raw,
+      text,
+      level,
+      customId,
+    };
   },
   render(matched, v) {
-    let anchor = matched.customId ? matched.customId : encodeURI(matched.text);
-    if (v?.markdown.anchors[anchor]) {
-      if (matched.customId) {
-        warn(`Same anchor "${anchor}" in "${v?.page?.path}"`);
-      }else{
-        anchor += '-' + v?.markdown.anchors[anchor];
-        (v as any).markdown.anchors[anchor]++;
-      }
-    }else{
-      (v as any).markdown.anchors[anchor] = 0;
-    }
-    return `<h${matched.level} id="#${config.markdown.heading_anchor_prefix}">${HTMLEncode(matched.text)}</h${matched.level}>`;
+    return renderHeading(matched, v);
   },
 }
 
-module.exports = heading;
+const headingUnderscore: MarkdownExtension = {
+  name: 'heading-underscore',
+  level: 'block',
+  priority: 0,
+  start(src){
+    return src.match(/(^|(?<=\n))(\S+)\n([\-]{3,}|[\=]{3,})/)?.index;
+  },
+  match(src){
+    let matched = src.match(/(^|(?<=\n))(\S+)\n([\-]{3,}|[\=]{3,})/);
+    if (!matched) return;
+    if (matched[2].match(/\-*/)?.[0].length === matched[2].length) return;
+    let {customId, text} = getCustomId(matched[2]);
+    return{
+      raw: matched[0],
+      text: text.trim(),
+      customId,
+      level: (matched[3].indexOf('=') === 0) ? 1 : 2,
+    };
+  },
+  render(matched, v){
+    return renderHeading(matched, v);
+  }
+}
+
+module.exports = [heading, headingUnderscore];

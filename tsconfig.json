@@ -11,9 +11,10 @@
     "alwaysStrict": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "newLine": "lf"
   },
-  "include": ["./source/**/*"],
+  "include": ["./source/**/*", "./source/markdown/emoji.json"],
   "exclude": [
     "node_modules",
     "dist",

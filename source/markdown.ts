@@ -1,5 +1,3 @@
-// import { readFile, writeFile } from "fs/promises";
-// import path from "path";
 import { warn } from "./console";
 import { inlineTagRender, blockTagRender, setMarkdownTag } from "./markdown/tag";
 import hljs from "highlight.js";
@@ -13,9 +11,9 @@ export type MarkdownExtensionVariables = {
 export type MarkdownExtension = {
   name: string,
   level: 'block' | 'inline',
-  start(src: string, v?: MarkdownExtensionVariables): number | null | undefined | void | Promise<number | null | undefined | void>,
-  match(src: string, v?: MarkdownExtensionVariables): MarkdownMatched | null | undefined | void | Promise<MarkdownMatched | null | undefined | void>,
-  render(matched: MarkdownMatched, v?: MarkdownExtensionVariables): string | Promise<string>,
+  start(src: string, v: MarkdownExtensionVariables): number | null | undefined | void | Promise<number | null | undefined | void>,
+  match(src: string, v: MarkdownExtensionVariables): MarkdownMatched | null | undefined | void | Promise<MarkdownMatched | null | undefined | void>,
+  render(matched: MarkdownMatched, v: MarkdownExtensionVariables): string | Promise<string>,
   priority?: number,
 };
 export type MarkdownMatched = {
@@ -33,7 +31,6 @@ type MarkdownExtensions = {
     [x: string]: MarkdownExtension
   },
 };
-type StartIndexes = Array<string[]>;
 type Matcheds = Array<{
   name: string,
   matched: MarkdownMatched,
@@ -44,7 +41,7 @@ let extensions: MarkdownExtensions = {
   block: {},
 };
 
-function getDefaultMarkdownV() {
+export function getDefaultMarkdownV() {
   return{
     anchors: {},
     quoteLink: {},
@@ -54,7 +51,7 @@ function getDefaultMarkdownV() {
 
 function setMarkdownExtension(exts: MarkdownExtension | MarkdownExtension[]) {
   if (typeof exts !== 'object') throw new Error('Need MarkdownExtension.');
-  if (exts !instanceof Array) exts = [(exts as unknown as MarkdownExtension)];
+  if (!Array.isArray(exts)) exts = [(exts as unknown as MarkdownExtension)];
   (exts as MarkdownExtension[]).forEach((ext)=>{
     if (!ext.name) throw new Error('MarkdownExtension need a name.');
     if (typeof ext.start !== 'function') throw new Error('MarkdownExtension\'s start should be a Function.');
@@ -79,11 +76,10 @@ function loadBuildInExtension() {
     'link',
     'image',
     'escape',
-    'html',
+    // 'html', // TODO: need to improve.
     'table',
     'footnote',
     'dl',
-    'task',
     'emoji',
   ].forEach((name)=>{
     setMarkdownExtension(require('./markdown/extension/' + name));
@@ -99,93 +95,108 @@ export function init(ezalModule: EzalModule) {
   ezalModule.render.codeblock = function render(matched: MarkdownMatched, _v: MarkdownExtensionVariables) {
     let lang = (matched.args && matched.args[0]) ? [matched.args[0]] : undefined;
     let result = hljs.highlightAuto(matched.text, lang);
-    return`<pre><code class="${ezalModule.config.markdown.highlight_prefix}${result.language}"></code>${result.value}</pre>`
+    return`<pre><code${result.language ? ` class="${ezalModule.config.markdown.highlight_prefix}${result.language}"` : ''}>${result.value}</code></pre>`;
   };
 }
 
 async function matchBlocks(source: string, markdownV: any, lines: string[], page: Page | Post | void) {
-  let starts: StartIndexes = [];
   let matcheds: Matcheds = [];
   for (const name in extensions.block) {
     let str = source;
     let offset = 0;
     while (Object.prototype.hasOwnProperty.call(extensions.block, name)) {
-      let index = await extensions.block[name].start(source, { page: page ? page : undefined, markdown: markdownV });
+      let index = await extensions.block[name].start(str, { page: page ? page : undefined, markdown: markdownV });
       if (typeof index !== 'number' || index < 0) break;
-      if (starts[index + offset]) {
-        starts[index + offset].push(name);
+      let matched = await extensions.block[name].match(str.slice(index), { page: page ? page : undefined, markdown: markdownV });
+      if (!matched) {
+        let next = str.indexOf('\n', index) + 1;
+        str = str.slice(next);
+        offset += next;
+        continue;
+      }
+      if (matcheds[index + offset]) {
+        let prev = extensions.block[matcheds[index + offset].name].priority;
+        let now = extensions.block[name].priority;
+        if (typeof now === 'number' && (typeof prev !== 'number' || now > prev)) {
+          matcheds[index + offset] = {
+            name,
+            matched,
+          };
+        }
       }else{
-        starts[index + offset] = [name];
+        matcheds[index + offset] = {
+          name,
+          matched,
+        };
       }
-      str = str.slice(index + 1);
-      offset += index + 1;
+      let next = index + matched.raw.length;
+      str = str.slice(next);
+      offset += next;
+      if (!str.match(/\S/)) break;
     }
   }
-  starts.forEach((start)=>{
-    start.sort((a, b)=>(extensions.block[a].priority || 0) - (extensions.block[b].priority || 0));
-  });
-  for (let i = 0; i < starts.length; i++) {
-    if (!starts[i]) continue;
-    for (const name of starts[i]) {
-      let matched = await extensions.block[name].match(source.slice(i), { page: page ? page : undefined, markdown: markdownV });
-      if (!matched) continue;
-      matcheds[i] = {
-        matched,
-        name,
-      };
-      for (let j = 0; j < matched.raw.length; j++) {
-        delete starts[i + j];
-      }
-      let lineStart = source.slice(0, i).split('\n').length;
-      let lineEnd = source.slice(0, i + matched.raw.length).split('\n').length;
-      for (let j = lineStart; j < lineEnd; j++){
-        delete lines[j];
-      }
-      break;
+  let finalMatcheds = [];
+  for (let i = 0; i < matcheds.length; i++) {
+    if(!matcheds[i]) continue;
+    for (let j = 1; j < matcheds[i].matched.raw.length; j++) {
+      delete matcheds[i + j];
     }
+    let lineStart = source.slice(0, i).split('\n').length - 1;
+    let lineEnd = source.slice(0, i + matcheds[i].matched.raw.length).split('\n').length;
+    for (let j = lineStart; j < lineEnd; j++){
+      delete lines[j];
+    }
+    finalMatcheds[lineStart] = matcheds[i];
   }
-  return matcheds;
+  return finalMatcheds;
 }
 async function matchLines(source: string, markdownV: any, lines: string[], page: Page | Post | void) {
   let matcheds: Matcheds[] = [];
   for (let i = 0; i < lines.length; i++) {
-    if (typeof lines[i] !== 'string') continue;
-    let starts: StartIndexes = [];
+    if (lines[i] === '' || typeof lines[i] !== 'string') continue;
     let lineMatcheds: Matcheds = [];
     for (const name in extensions.inline) {
-      let str = source;
+      let str = lines[i];
       let offset = 0;
       while (Object.prototype.hasOwnProperty.call(extensions.inline, name)) {
-        let index = await extensions.inline[name].start(lines[i], { page: page ? page : undefined, markdown: markdownV });
-        if (typeof index !== 'number' || index < 0) continue;
-        if (starts[index + offset]) {
-          starts[index + offset].push(name);
+        let index = await extensions.inline[name].start(str, { page: page ? page : undefined, markdown: markdownV });
+        if (typeof index !== 'number' || index < 0) break;
+        let matched = await extensions.inline[name].match(str.slice(index), { page: page ? page : undefined, markdown: markdownV });
+        if (!matched) {
+          let next = index + 1;
+          str = str.slice(next);
+          offset += next;
+          continue;
+        }
+        if (lineMatcheds[index + offset]) {
+          let prev = extensions.inline[lineMatcheds[index + offset].name].priority;
+          let now = extensions.inline[name].priority;
+          if (typeof now === 'number' && (typeof prev !== 'number' || now > prev)) {
+            lineMatcheds[index + offset] = {
+              name,
+              matched,
+            };
+          }
         }else{
-          starts[index + offset] = [name];
+          lineMatcheds[index + offset] = {
+            name,
+            matched,
+          };
         }
-        str = str.slice(index + 1);
-        offset += index + 1;
+        let next = index + matched.raw.length;
+        str = str.slice(next);
+        offset += next;
+        if (!str.match(/\S/)) break;
       }
     }
-    starts.forEach((start)=>{
-      start.sort((a, b)=>(extensions.inline[a].priority || 0) - (extensions.inline[b].priority || 0));
-    });
-    for (let i = 0; i < starts.length; i++) {
-      if (!starts[i]) continue;
-      for (const name of starts[i]) {
-        let matched = await extensions.inline[name].match(lines[i], { page: page ? page : undefined, markdown: markdownV });
-        if (!matched) continue;
-        lineMatcheds[i] = {
-          matched,
-          name,
-        };
-        for (let j = 0; j < matched.raw.length; j++) {
-          delete starts[i + j];
-        }
-        break;
+    if (lineMatcheds.length === 0) continue;
+    for (let i = 0; i < lineMatcheds.length; i++) {
+      if(!lineMatcheds[i]) continue;
+      for (let j = 1; j < lineMatcheds[i].matched.raw.length; j++) {
+        delete lineMatcheds[i + j];
       }
     }
-    matcheds.push(lineMatcheds);
+    matcheds[i] = lineMatcheds;
   }
   return matcheds;
 }
@@ -204,19 +215,19 @@ export async function markdownLine(source: string, v: MarkdownExtensionVariables
     // j: index of char in line
     for (let j = 0; j < inlineMatcheds[0].length; j++) {
       if (!inlineMatcheds[0][j]) continue;
-      line += lines[0].slice(charBegin, j);
+      context += line.slice(charBegin, j);
       charBegin = inlineMatcheds[0][j].matched.raw.length + j;
-      line += await extensions.inline[inlineMatcheds[0][j].name].render(inlineMatcheds[0][j].matched, { page: v?.page, markdown: v?.markdown });
+      context += await extensions.inline[inlineMatcheds[0][j].name].render(inlineMatcheds[0][j].matched, { page: v?.page, markdown: v?.markdown });
       j = charBegin;
     }
-    context += line;
+    context += line.slice(charBegin);
   } else {
     context = line;
   }
   return { context, variables: markdown };
 }
 
-export async function markdown(source: string, v: MarkdownExtensionVariables | null | undefined | void = {markdown: getDefaultMarkdownV()}) {
+export async function markdown(source: string, v: MarkdownExtensionVariables | null | undefined | void = {markdown: getDefaultMarkdownV()}, para: boolean = true) {
   source = source.replace(/\r/g, '');
   let lines = source.split('\n');
   let blockMatcheds: Matcheds = await matchBlocks(source, v?.markdown, lines, v?.page);
@@ -226,7 +237,8 @@ export async function markdown(source: string, v: MarkdownExtensionVariables | n
   // i: index of line in source
   for (let i = 0; i < lines.length; i++) {
     if (typeof lines[i] !== 'string') {
-      if (partBegin) {
+      if (!blockMatcheds[i]) continue;
+      if (para && partBegin) {
         context += '</p>';
         partBegin = false;
       }
@@ -234,21 +246,23 @@ export async function markdown(source: string, v: MarkdownExtensionVariables | n
       continue;
     }
     if (lines[i] === '') {
-      if (partBegin) {
+      if (para && partBegin) {
         context += '</p>';
         partBegin = false;
       }
       continue;
     }
     if (!partBegin) {
-      context += '<p>';
-      partBegin = true;
+      if (para) {
+        context += '<p>';
+        partBegin = true;
+      }
     }else{
-      context += '<br>'
+      context += '<br>';
     }
-    let line = ''
+    let line = '';
     if (inlineMatcheds[i] && inlineMatcheds[i].length > 0) {
-      let charBegin = 0
+      let charBegin = 0;
       // j: index of char in line
       for (let j = 0; j < inlineMatcheds[i].length; j++) {
         if (!inlineMatcheds[i][j]) continue;
@@ -257,19 +271,13 @@ export async function markdown(source: string, v: MarkdownExtensionVariables | n
         line += await extensions.inline[inlineMatcheds[i][j].name].render(inlineMatcheds[i][j].matched, { page: v?.page, markdown: v?.markdown });
         j = charBegin;
       }
-      context += line;
+      context += line + lines[i].slice(charBegin);
       continue;
     }
     context += lines[i];
   }
-  if (partBegin) {
+  if (para && partBegin) {
     context += '</p>';
   }
-  return { context, variables: markdown };
+  return { context, variables: v?.markdown };
 }
-
-// TODO: for test, delete later
-// @ts-ignore
-// readFile(path.join(process.cwd(), 'test', 'source.md'), 'utf-8').then(markdown).then(context=>{
-//   return writeFile(path.join(process.cwd(), 'test', 'result.html'), context, 'utf-8');
-// });

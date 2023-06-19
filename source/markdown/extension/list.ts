@@ -1,3 +1,4 @@
+import { config } from "ezal";
 import { markdown } from '../../markdown';
 
 type MarkdownExtension = import('../../markdown').MarkdownExtension;
@@ -12,7 +13,7 @@ const ol: MarkdownExtension = {
     let lines = src.split('\n');
     let end = 1;
     for (const line of lines) {
-      if (!line.match(/[\d\. |  |\t]/)) break;
+      if (!line.match(/(\d\. |  |\t)/)) break;
       end++;
     }
     let rawLines = lines.slice(0, end);
@@ -42,8 +43,9 @@ const ol: MarkdownExtension = {
   async render(matched, v){
     let html = '';
     for (const arg of (matched.args as unknown as string[])) {
-      let rendered = (await markdown(arg, v)).context;
-      html += `<li>${rendered.slice(3, rendered.length - 4)}</li>`;
+      html += `<li>${(await markdown(arg, v, false)).context}</li>`;
+      // TODO: may need replace <p></p>
+      // html += `<li>${rendered.slice(3, rendered.length - 4)}</li>`;
     }
     return `<ol>${html}</ol>`;
   }
@@ -53,13 +55,13 @@ const ul: MarkdownExtension = {
   level: 'block',
   priority: 0,
   start(src){
-    return src.match(/(^|(?<=\n))[\-|\*|\+]{1} (.*)/)?.index;
+    return src.match(/(^|(?<=\n))[\-\*\+]{1} (.*)/)?.index;
   },
   match(src){
     let lines = src.split('\n');
     let end = 1;
     for (let i = 0; i < lines.length; i++) {
-      if (!lines[i].match(/[\-|\*|\+|  |\t]/)) break;
+      if (!lines[i].match(/(\-|\*|\+|  |\t)/)) break;
       end++;
     }
     let rawLines = lines.slice(0, end);
@@ -89,8 +91,12 @@ const ul: MarkdownExtension = {
   async render(matched, v){
     let html = '';
     for (const arg of (matched.args as unknown as string[])) {
-      let rendered = (await markdown(arg, v)).context;
-      html += `<li>${rendered.slice(3, rendered.length - 4)}</li>`;
+      let matched = arg.match(/^\[(\S|\s)\] (.*)/);
+      if (matched) {
+        html += `<li${config.markdown.task_list_classname ? ` class="${config.markdown.task_list_classname}"` : ''}><input type="checkbox"${matched[1] !== ' ' ? ' checked' : ''} disabled>${(await markdown(matched[2], v, false)).context}</li>`;
+        continue;
+      }
+      html += `<li>${(await markdown(arg, v, false)).context}</li>`;
     }
     return `<ul>${html}</ul>`;
   }
