@@ -24,10 +24,6 @@ npm init
 npm install --save chokidar
 npm install --save highlight.js
 npm install --save live-server
-npm install --save marked
-npm install --save marked-highlight
-npm install --save marked-gfm-heading-id
-npm install --save marked-mangle
 npm install --save pug
 npm install --save stylus
 npm install --save yaml

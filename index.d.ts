@@ -16,12 +16,8 @@ declare module 'ezal'{
    * Set pug option in HTML template
    */
   export let pug: {
-    url_for(src: string): string,
-    full_url_for(src: string): string,
-    now(): Date,
-    parseDate(date: any, format: string | undefined | void, option: void | undefined | DateTemplate): string,
     [x: string | number | symbol]: any,
-  }
+    }
   /**
    * Set stylus option in CSS template
    */
@@ -40,12 +36,17 @@ declare module 'ezal'{
     }
   }
   export namespace render {
+    type MarkdownRenderResult = {
+      context: string,
+      variables: any,
+    }
     /**
      * Render Markdown content to HTML
      * @param source Markdown content
      * @returns HTML string
      */
-    function markdown(source: string): Promise<string>
+    function markdown(source: string, v?: MarkdownExtensionVariables, paragraph?: boolean): Promise<MarkdownRenderResult>
+    function markdownLine(source: string, v?: MarkdownExtensionVariables): Promise<MarkdownRenderResult>
     /**
      * Render HTML template to HTML
      * @param layoutName Layout's name in theme's layout folder
@@ -404,7 +405,6 @@ declare module 'ezal'{
   }
   export function setMarkdownExtension(markdownExtension: MarkdownExtension | MarkdownExtension[]): void
   export function setMarkdownTag(markdownTag: MarkdownTag | MarkdownTag[]): void
-  export const locale: any
   type DateTemplate = {
     D: [string, string, string, string, string, string, string],
     DD: [string, string, string, string, string, string, string],
@@ -421,4 +421,8 @@ declare module 'ezal'{
     function parseDate(date: any, format: string | undefined | void, option: void | undefined | DateTemplate): string
     function setDateTemplate(option: DateTemplate): void
   }
+  /**
+   * Auto load locale from theme's locales folder
+   */
+  export const locale: any
 }

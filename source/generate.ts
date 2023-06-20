@@ -26,6 +26,8 @@ async function renderPug(layoutName: string, options: any = {}) {
     posts: globalOptions.posts,
     categories: globalOptions.categories,
     tags: globalOptions.tags,
+    lang: globalOptions.locale,
+    util: globalOptions.util,
   }, globalOptions.pug, options));
 }
 

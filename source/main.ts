@@ -14,13 +14,14 @@ import path from "path";
 import Module from "module";
 import { loadScript } from "./script-loader";
 import util from "./util";
+import { getLocale } from "./locale";
 type CategoryRoot = import("./category").CategoryRoot;
 type Tags = import("./tag").Tags;
 type MarkdownMatched = import('./markdown').MarkdownMatched;
 type MarkdownExtensionVariables = import('./markdown').MarkdownExtensionVariables;
 export type EzalModule = {
   addListener: Function;
-  pug: object;
+  pug: any;
   stylus: {
     var: object,
     function: object,
@@ -43,6 +44,7 @@ export type EzalModule = {
   setMarkdownExtension?: Function,
   setMarkdownTag?:Function,
   util: any,
+  locale?: any,
 };
 
 let ezalModule: EzalModule = {
@@ -95,6 +97,8 @@ async function build() {
   ezalModule.theme = await readThemeConfig(ezalModule.config.theme);
 
   let themePath = path.join(process.cwd(), 'themes', ezalModule.config.theme);
+  let locale = await getLocale(ezalModule.config.language, themePath);
+  ezalModule.locale = locale;
   await initPug(ezalModule, themePath, dispatchEvent);
   await initStylus(ezalModule, themePath, dispatchEvent);
   await initRenderer(ezalModule, dispatchEvent);

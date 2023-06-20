@@ -9,8 +9,9 @@ const dirs = [
   'template',
   'themes/default/assets',
   'themes/default/layout',
-  'themes/default/scripts/',
+  'themes/default/scripts',
   'themes/default/style',
+  'themes/default/locales',
 ];
 
 const files = {
@@ -28,6 +29,7 @@ categories:
 tags:
 ---`,
   'themes/default/config.yml': '',
+  'themes/default/locales/default.yml': '',
 };
 
 export default async function init () {

@@ -58,9 +58,11 @@ function setMarkdownExtension(exts: MarkdownExtension | MarkdownExtension[]) {
     if (typeof ext.match !== 'function') throw new Error('MarkdownExtension\'s match should be a Function.');
     if (typeof ext.render !== 'function') throw new Error('MarkdownExtension\'s render should be a Function.');
     if (!['block', 'inline'].includes(ext.level)) throw new Error('Unexpected MarkdownExtension level.');
-    if (!extensions[ext.level][ext.name] || !extensions[ext.level][ext.name].priority || (typeof ext.priority === 'number' && (extensions[ext.level][ext.name].priority as number) < ext.priority)) {
+    // TODO: priority should not work such this.
+    /* if (!extensions[ext.level][ext.name] || !extensions[ext.level][ext.name].priority || (typeof ext.priority === 'number' && (extensions[ext.level][ext.name].priority as number) < ext.priority)) {
       extensions[ext.level][ext.name] = ext;
-    }
+    } */
+    extensions[ext.level][ext.name] = ext;
   });
 }
 
@@ -97,6 +99,8 @@ export function init(ezalModule: EzalModule) {
     let result = hljs.highlightAuto(matched.text, lang);
     return`<pre><code${result.language ? ` class="${ezalModule.config.markdown.highlight_prefix}${result.language}"` : ''}>${result.value}</code></pre>`;
   };
+  ezalModule.render.markdown = markdown;
+  ezalModule.render.markdownLine = markdownLine;
 }
 
 async function matchBlocks(source: string, markdownV: any, lines: string[], page: Page | Post | void) {
