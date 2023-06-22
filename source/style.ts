@@ -1,5 +1,6 @@
+import { writeFile } from "./util";
 import { readdirSync } from "fs";
-import { access, mkdir, readFile, writeFile } from "fs/promises";
+import { readFile } from "fs/promises";
 import path from "path";
 import stylus from "stylus";
 type StylusRenderer = import("stylus/lib/renderer");
@@ -92,10 +93,8 @@ async function generateStyle() {
       path.basename(files[i]),
     );
     await dispatchEvent('post-style', styleContent)
-    const outputDir = path.join(process.cwd(), 'out/style', path.dirname(files[i].replace(styleBase, '')));
-    await access(outputDir)
-    .catch(()=>mkdir(outputDir, { recursive: true }));
-    await writeFile(path.join(outputDir, path.parse(files[i].replace(styleBase, '')).name + '.css'), styleContent.css, 'utf8');
+    await writeFile(path.join(process.cwd(), 'out/style', path.dirname(files[i].replace(styleBase, ''))), styleContent.css, 'utf-8');
+    return;
   }
 }
 

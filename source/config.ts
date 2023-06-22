@@ -14,7 +14,6 @@ language: ''
 host: ''
 root: ''
 timezone: 0
-out_dir: ''
 
 markdown:
   heading_anchor_prefix: ''

@@ -15,6 +15,7 @@ import Module from "module";
 import { loadScript } from "./script-loader";
 import util from "./util";
 import { getLocale } from "./locale";
+import { generateAllProcedural, setProceduralGenerater } from "./procedural";
 type CategoryRoot = import("./category").CategoryRoot;
 type Tags = import("./tag").Tags;
 type MarkdownMatched = import('./markdown').MarkdownMatched;
@@ -45,6 +46,7 @@ export type EzalModule = {
   setMarkdownTag?:Function,
   util: any,
   locale?: any,
+  setProceduralGenerater: Function,
 };
 
 let ezalModule: EzalModule = {
@@ -72,6 +74,7 @@ let ezalModule: EzalModule = {
   categories: categoriesRoot,
   tags,
   util,
+  setProceduralGenerater: setProceduralGenerater,
 };
 
 function initEzalModule() {
@@ -119,6 +122,7 @@ async function build() {
   await renderAll(Array.from(posts));
   await generateAll(Array.from(pages));
   await generateAll(Array.from(posts));
+  await generateAllProcedural();
 
   await generateStyle();
 

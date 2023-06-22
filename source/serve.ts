@@ -1,5 +1,26 @@
 import { start, shutdown } from "live-server";
 import path from "path";
+import { pages, posts, updatePage } from "./page";
+import { render } from "./render";
+import { generate } from "./generate";
+import { autoGenerateProcedural } from "./procedural";
+
+async function walkPages(url: string){
+  for (const page of Array.from(pages)) {
+    if (page.url !== url) continue;
+    updatePage(page);
+    await render(page);
+    await generate(page);
+    throw 'MATCHED';
+  }
+  for (const post of Array.from(posts)) {
+    if (post.url !== url) continue;
+    updatePage(post);
+    await render(post);
+    await generate(post);
+    throw 'MATCHED';
+  }
+}
 
 function startServer() {
   start({
@@ -10,7 +31,14 @@ function startServer() {
     file: path.join(process.cwd(), 'out/404.html'),
     wait: 2,
     logLevel: 0,
-  })
+    middleware: [(req, res, next)=>{
+      walkPages(req.url).then(()=>{
+        return autoGenerateProcedural(req.url);
+      }).catch(()=>{}).finally(()=>{
+        next();
+      });
+    }],
+  });
 }
 function stopServer() {
   shutdown();

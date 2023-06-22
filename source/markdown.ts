@@ -112,7 +112,7 @@ async function matchBlocks(source: string, markdownV: any, lines: string[], page
       let index = await extensions.block[name].start(str, { page: page ? page : undefined, markdown: markdownV });
       if (typeof index !== 'number' || index < 0) break;
       let matched = await extensions.block[name].match(str.slice(index), { page: page ? page : undefined, markdown: markdownV });
-      if (!matched) {
+      if (!matched || matched.raw.length <= 0) {
         let next = str.indexOf('\n', index) + 1;
         str = str.slice(next);
         offset += next;
@@ -166,7 +166,7 @@ async function matchLines(source: string, markdownV: any, lines: string[], page:
         let index = await extensions.inline[name].start(str, { page: page ? page : undefined, markdown: markdownV });
         if (typeof index !== 'number' || index < 0) break;
         let matched = await extensions.inline[name].match(str.slice(index), { page: page ? page : undefined, markdown: markdownV });
-        if (!matched) {
+        if (!matched || matched.raw.length <= 0) {
           let next = index + 1;
           str = str.slice(next);
           offset += next;

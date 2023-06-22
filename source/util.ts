@@ -1,5 +1,6 @@
 import { config } from "ezal";
 import path from "path/posix";
+import fs from "fs/promises";
 
 export function HTMLEncode(string: string){
   if (typeof string !== 'string') throw new TypeError(`'${string}' is not a string.`);
@@ -80,6 +81,15 @@ export function parseDate(date: any, format: string, option: any = dateTemplate)
 export function setDateTemplate(option: any){
   dateTemplate = option;
 }
+export async function writeFile(url: string, data: any, option?: BufferEncoding){
+  let { dir } = path.parse(url);
+  try {
+    await fs.access(dir);
+  } catch {
+    await fs.mkdir(dir, { recursive: true });
+  }
+  return await fs.writeFile(url, data, option);
+}
 export default{
   HTMLEncode,
   url_for,
@@ -87,4 +97,5 @@ export default{
   now,
   parseDate,
   setDateTemplate,
+  writeFile,
 };

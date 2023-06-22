@@ -1,7 +1,8 @@
 type Page = import('./page').Page;
 type Post = import('./page').Post;
 type EzalModule = import('./main').EzalModule;
-import { access, mkdir, writeFile } from 'fs/promises';
+import { access } from 'fs/promises';
+import { writeFile } from './util';
 import path from 'path';
 import pug from 'pug';
 
@@ -34,12 +35,9 @@ async function renderPug(layoutName: string, options: any = {}) {
 async function generate(page: Page | Post) {
   await dispatchEvent('pre-generate', page);
   let result = await renderPug(page.layout, {page});
-  let outputDir = path.join(process.cwd(), 'out', page.url);
-  await access(outputDir)
-  .catch(()=>mkdir(outputDir, { recursive: true }));
-  await dispatchEvent('post-generate', {page, html: result});
-  await writeFile(path.join(outputDir, 'index.html'), result, 'utf8');
-  return
+  result = await dispatchEvent('post-generate', {page, html: result});
+  await writeFile(path.join(process.cwd(), 'out', page.url, 'index.html'), result, 'utf-8');
+  return;
 }
 async function generateAll(pages: Array<Page | Post>) {
   for (let i = 0; i < pages.length; i++) {
@@ -51,4 +49,5 @@ export{
   initPug,
   generate,
   generateAll,
+  renderPug,
 };

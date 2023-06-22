@@ -86,7 +86,6 @@ declare module 'ezal'{
     const host: string
     const root: string
     const timezone: number
-    const out_dir: string
     const markdown: {
       heading_anchor_prefix: string,
       highlight_prefix: string,
@@ -420,9 +419,33 @@ declare module 'ezal'{
     function now(): Date
     function parseDate(date: any, format: string | undefined | void, option: void | undefined | DateTemplate): string
     function setDateTemplate(option: DateTemplate): void
+    function writeFile(url: string, data: any, option?: BufferEncoding): Promise<void>
   }
   /**
    * Auto load locale from theme's locales folder
    */
   export const locale: any
+  type ProceduralItem = {
+    path: string,
+    data: any,
+  }
+  type Procedural = {
+    type: 'page' | 'assets',
+    /**
+     * When type is page, a layout must be set
+     */
+    layout?: string,
+    /**
+     * When type is assets, a dataType must be set
+     */
+    dataType?: BufferEncoding,
+    /**
+     * Match pages requested in serve mode
+     * @param url Require url
+     * @returns Return ProceduralItem must make the path and url the same, otherwise it is considered not matched
+     */
+    match(url: string): ProceduralItem | undefined | void | Promise<ProceduralItem | undefined | void>,
+    getItems(): ProceduralItem | ProceduralItem[] | Promise<ProceduralItem | ProceduralItem[]>,
+  }
+  export function setProceduralGenerater(arg: Procedural | Procedural[]): void
 }
