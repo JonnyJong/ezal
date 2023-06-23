@@ -82,7 +82,7 @@ export function setDateTemplate(option: any){
   dateTemplate = option;
 }
 export async function writeFile(url: string, data: any, option?: BufferEncoding){
-  let { dir } = path.parse(url);
+  let dir = path.join(url, '..');
   try {
     await fs.access(dir);
   } catch {

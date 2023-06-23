@@ -1,9 +1,9 @@
 import { info } from "./console";
 import readConfig, { checkConfig, checkThemeConfig, readThemeConfig } from "./config";
-import { readPages, readPosts, pages, posts, categoriesRoot, tags, Page, Post, updatePage, readPage } from "./page";
+import { readPages, readPosts, pages, posts, categoriesRoot, tags, Page, Post } from "./page";
 import { addListener, dispatchEvent } from "./event";
-import { initRenderer, render, renderAll } from "./render";
-import { generate, generateAll, initPug } from "./generate";
+import { initRenderer, renderAll } from "./render";
+import { generateAll, initPug } from "./generate";
 import { generateStyle, initStylus } from "./style";
 import { copyAssets, initAssets } from "./assets";
 import clean from "./clean";
@@ -100,8 +100,7 @@ async function build() {
   ezalModule.theme = await readThemeConfig(ezalModule.config.theme);
 
   let themePath = path.join(process.cwd(), 'themes', ezalModule.config.theme);
-  let locale = await getLocale(ezalModule.config.language, themePath);
-  ezalModule.locale = locale;
+  ezalModule.locale = await getLocale(ezalModule.config.language, themePath);
   await initPug(ezalModule, themePath, dispatchEvent);
   await initStylus(ezalModule, themePath, dispatchEvent);
   await initRenderer(ezalModule, dispatchEvent);
@@ -132,53 +131,7 @@ async function build() {
 }
 
 function serve() {
-  let watcher = new Watcher(ezalModule.config.theme, ()=>copyAssets(ezalModule.config.theme), async (event: 'add'|'addDir'|'change'|'unlink'|'unlinkDir')=>{
-    if (event.includes('Dir')) return;
-    await generateAll(Array.from(pages));
-    await generateAll(Array.from(posts));
-  }, async (event: 'add'|'addDir'|'change'|'unlink'|'unlinkDir', url: string)=>{
-    if (event.includes('Dir')) return;
-    switch (event) {
-      case 'unlink':
-        pages.forEach((page)=>{
-          if (page.path === url) page.remove();
-        });
-        break;
-      case 'change':
-        await pages.forEach(async (page)=>{
-          if (page.path === url) {
-            updatePage(page);
-            await render(page);
-            await generate(page);
-          }
-        });
-        break;
-      case 'add':
-        await readPage(url, 'page');
-        break;
-    }
-  }, async (event: 'add'|'addDir'|'change'|'unlink'|'unlinkDir', url: string)=>{
-    if (event.includes('Dir')) return;
-    switch (event) {
-      case 'unlink':
-        posts.forEach((post)=>{
-          if (post.path === url) post.remove();
-        });
-        break;
-      case 'change':
-        await posts.forEach(async (post)=>{
-          if (post.path === url) {
-            updatePage(post);
-            await render(post);
-            await generate(post);
-          }
-        });
-        break;
-      case 'add':
-        await readPage(url, 'post');
-        break;
-    }
-  }, generateStyle);
+  let watcher = new Watcher(ezalModule);
   startServer();
 
   process.on('SIGINT', async ()=>{

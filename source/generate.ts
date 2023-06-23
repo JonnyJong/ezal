@@ -34,9 +34,10 @@ async function renderPug(layoutName: string, options: any = {}) {
 
 async function generate(page: Page | Post) {
   await dispatchEvent('pre-generate', page);
-  let result = await renderPug(page.layout, {page});
-  result = await dispatchEvent('post-generate', {page, html: result});
-  await writeFile(path.join(process.cwd(), 'out', page.url, 'index.html'), result, 'utf-8');
+  let generated = { page, html: '' };
+  generated.html = await renderPug(page.layout, generated);
+  await dispatchEvent('post-generate', generated);
+  await writeFile(path.join(process.cwd(), 'out', page.url, 'index.html'), generated.html, 'utf-8');
   return;
 }
 async function generateAll(pages: Array<Page | Post>) {

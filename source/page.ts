@@ -236,7 +236,7 @@ function updatePage(page: Page | Post) {
     error(`Cannot read ${path}`);
     throw 'Cannot read';
   }).then((source)=>{
-    page.update(source);
+    page.update(source.replace(/\r\n/g, '\n'));
     return page;
   }).catch(()=>null);
 }

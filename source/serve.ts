@@ -6,6 +6,7 @@ import { generate } from "./generate";
 import { autoGenerateProcedural } from "./procedural";
 
 async function walkPages(url: string){
+  url = url.slice(1).replace(/\//g, '\\');
   for (const page of Array.from(pages)) {
     if (page.url !== url) continue;
     updatePage(page);
@@ -14,7 +15,7 @@ async function walkPages(url: string){
     throw 'MATCHED';
   }
   for (const post of Array.from(posts)) {
-    if (post.url !== url) continue;
+    if (post.url + '\\' !== url) continue;
     updatePage(post);
     await render(post);
     await generate(post);

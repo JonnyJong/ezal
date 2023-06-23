@@ -12,7 +12,7 @@ Simple blog framework.
 - [x] Plugin System
   - [ ] Typescript support (optional)
 - [x] Remake category function
-- [ ] Improve server mode
+- [x] Improve server mode
 - [x] Improve build process
 - [x] Theme support
 - [x] Document

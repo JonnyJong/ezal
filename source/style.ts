@@ -83,17 +83,17 @@ async function generateStyle() {
       stylus,
       // @ts-ignore
       css: '',
-    }
+    };
     styleContent.stylus = await readFile(files[i], 'utf-8')
-    await dispatchEvent('pre-style', styleContent)
+    await dispatchEvent('pre-style', styleContent);
     styleContent.css = renderStylus(
       styleContent.stylus,
       {},
       [path.dirname(files[i])],
       path.basename(files[i]),
     );
-    await dispatchEvent('post-style', styleContent)
-    await writeFile(path.join(process.cwd(), 'out/style', path.dirname(files[i].replace(styleBase, ''))), styleContent.css, 'utf-8');
+    await dispatchEvent('post-style', styleContent);
+    await writeFile(path.join(process.cwd(), 'out/style', path.parse(files[i].replace(styleBase, '')).name + '.css'), styleContent.css, 'utf-8');
     return;
   }
 }
