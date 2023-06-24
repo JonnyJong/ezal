@@ -2,11 +2,10 @@ type Page = import('./page').Page;
 type Post = import('./page').Post;
 type EzalModule = import('./main').EzalModule;
 import { access } from 'fs/promises';
-import { writeFile } from './util';
 import path from 'path';
 import pug from 'pug';
 
-let globalOptions: any;
+let globalOptions: EzalModule;
 let themePath: string;
 let dispatchEvent: Function;
 function initPug(ezalModule: EzalModule, themeDir: string, eventDispatcher: Function) {
@@ -37,7 +36,7 @@ async function generate(page: Page | Post) {
   let generated = { page, html: '' };
   generated.html = await renderPug(page.layout, generated);
   await dispatchEvent('post-generate', generated);
-  await writeFile(path.join(process.cwd(), 'out', page.url, 'index.html'), generated.html, 'utf-8');
+  await globalOptions.util.writeFile(path.join(process.cwd(), 'out', page.url, 'index.html'), generated.html, 'utf-8');
   return;
 }
 async function generateAll(pages: Array<Page | Post>) {

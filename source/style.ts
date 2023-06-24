@@ -6,7 +6,7 @@ import stylus from "stylus";
 type StylusRenderer = import("stylus/lib/renderer");
 type EzalModule = import('./main').EzalModule;
 
-let styleBase: string;
+let styleBase: any;
 
 function readFiles(dir: string) {
   let result: Array<string> = [];
@@ -93,7 +93,7 @@ async function generateStyle() {
       path.basename(files[i]),
     );
     await dispatchEvent('post-style', styleContent);
-    await writeFile(path.join(process.cwd(), 'out/style', path.parse(files[i].replace(styleBase, '')).name + '.css'), styleContent.css, 'utf-8');
+    await globalOptions.util.writeFile(path.join(process.cwd(), 'out/style', path.parse(files[i].replace(styleBase, '')).name + '.css'), styleContent.css, 'utf-8');
     return;
   }
 }

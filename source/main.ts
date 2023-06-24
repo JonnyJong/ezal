@@ -99,7 +99,7 @@ async function build() {
   await initRenderer(ezalModule, dispatchEvent);
   await initAssets(dispatchEvent);
   await loadScript(themePath);
-  let util = require('./util');
+  let util = require('./util')(ezalModule.config);
   ezalModule.util = util;
   ezalModule.pug.url_for = util.url_for;
   ezalModule.pug.full_url_for = util.full_url_for;

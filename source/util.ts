@@ -1,6 +1,7 @@
-import { config } from "ezal";
 import path from "path/posix";
 import fs from "fs/promises";
+
+let config: any = {};
 
 export function HTMLEncode(string: string){
   if (typeof string !== 'string') throw new TypeError(`'${string}' is not a string.`);
@@ -90,12 +91,15 @@ export async function writeFile(url: string, data: any, option?: BufferEncoding)
   }
   return await fs.writeFile(url, data, option);
 }
-export default{
-  HTMLEncode,
-  url_for,
-  full_url_for,
-  now,
-  parseDate,
-  setDateTemplate,
-  writeFile,
-};
+module.exports = function initUtil(cfg: any){
+  config = cfg;
+  return {
+    HTMLEncode,
+    url_for,
+    full_url_for,
+    now,
+    parseDate,
+    setDateTemplate,
+    writeFile,
+  };
+}
