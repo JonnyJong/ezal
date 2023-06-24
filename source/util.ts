@@ -83,7 +83,10 @@ export function setDateTemplate(option: any){
   dateTemplate = option;
 }
 export async function writeFile(url: string, data: any, option?: BufferEncoding){
-  let dir = path.join(url, '..');
+  let dir = path.join(url, '../');;
+  if (process.platform === 'win32') {
+    dir = path.join(url, '..\\');
+  }
   try {
     await fs.access(dir);
   } catch {
