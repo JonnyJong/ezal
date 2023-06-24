@@ -13,7 +13,6 @@ import init from "./init";
 import path from "path";
 import Module from "module";
 import { loadScript } from "./script-loader";
-import util from "./util";
 import { getLocale } from "./locale";
 import { generateAllProcedural, setProceduralGenerater } from "./procedural";
 type CategoryRoot = import("./category").CategoryRoot;
@@ -44,7 +43,7 @@ export type EzalModule = {
   tags: Tags;
   setMarkdownExtension?: Function,
   setMarkdownTag?:Function,
-  util: any,
+  util?: any,
   locale?: any,
   setProceduralGenerater: Function,
 };
@@ -53,12 +52,7 @@ let ezalModule: EzalModule = {
   // event
   addListener,
   // pug objects
-  pug: {
-    url_for: util.url_for,
-    full_url_for: util.full_url_for,
-    now: util.now,
-    parseDate: util.parseDate,
-  },
+  pug: {},
   // stylus objects
   stylus: {var:{}, function: {}},
   // render functions
@@ -73,7 +67,6 @@ let ezalModule: EzalModule = {
   posts,
   categories: categoriesRoot,
   tags,
-  util,
   setProceduralGenerater: setProceduralGenerater,
 };
 
@@ -106,6 +99,12 @@ async function build() {
   await initRenderer(ezalModule, dispatchEvent);
   await initAssets(dispatchEvent);
   await loadScript(themePath);
+  let util = require('./util');
+  ezalModule.util = util;
+  ezalModule.pug.url_for = util.url_for;
+  ezalModule.pug.full_url_for = util.full_url_for;
+  ezalModule.pug.now = util.now;
+  ezalModule.pug.parseDate = util.parseDate;
 
   info(`Ready in ${Date.now() - startStamp}ms.`);
 
