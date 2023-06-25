@@ -1,6 +1,6 @@
 import { renderPug } from "./generate";
 import { warn } from "./console";
-import { writeFile } from "./util";
+import path from "path";
 type Procedural = import('ezal').Procedural;
 type ProceduralItem = import('ezal').ProceduralItem;
 let procedural: Procedural[] = [];
@@ -35,18 +35,24 @@ export function setProceduralGenerater(items: Procedural | Procedural[]): void{
     procedural.push(item);
   });
 }
-function generateProcedural(origin: Procedural, item: ProceduralItem){
+async function generateProcedural(origin: Procedural, item: ProceduralItem){
+  const { writeFile } = require('ezal').util;
   switch (origin.type) {
     case 'assets':
       return writeFile(item.path, item.data, origin.dataType);
     case 'page':
-      return writeFile(item.path, renderPug((origin.layout as string), item.data), 'utf-8');
+      return writeFile(item.path, await renderPug((origin.layout as string), item.data), 'utf-8');
   }
+}
+function verifyUrl(expectation: string, actual: string): boolean {
+  if (expectation === actual) return true;
+  if (expectation + 'index.html' === actual) return true;
+  return false;
 }
 export async function findProcedural(url: string){
   for (const item of procedural) {
     let matched = await item.match(url);
-    if (matched && matched.path === url) {
+    if (matched && verifyUrl(url, matched.path)) {
       return{item: matched, origin: item};
     }
   }
@@ -57,6 +63,7 @@ export async function generateAllProcedural(){
     let items = await origin.getItems();
     if (!Array.isArray(items)) items = [items];
     for (const item of items) {
+      item.path = path.join(process.cwd(), 'out', item.path);
       await generateProcedural(origin, item);
     }
   }

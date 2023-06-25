@@ -1,4 +1,4 @@
-// Type definitions for Ezal 0.0.3
+// Type definitions for Ezal 0.0.10
 // Project: https://github.com/JonnyJong/ezal
 // Definitions by: Jonny <https://github.com/JonnyJong>
 // Definitions: https://github.com/JonnyJong/ezal

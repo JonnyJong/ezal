@@ -1,3 +1,6 @@
+# 定义文件
+[index.d.ts](https://github.com/JonnyJong/ezal/blob/main/index.d.ts)
+
 # 主题结构
 - assets
 - layout
@@ -297,4 +300,27 @@ setMarkdownTag([{
 
 ```html
 <p><psw>no password here!</psw></p><object><ul><li>Write markdown here</li><li><img src="./image.jpg" alt="Image"></li></ul></object>
+```
+
+## 程序化生成
+要想创建如“主页”、“归档”等特殊的页面或类似`search.json`的搜索索引文件，可使用此 API。可自行生成，但更推荐使用此 API。
+```js
+const { setProceduralGenerater } = require('ezal');
+
+const pageData = {
+  path: '/index.html',
+  data: {
+    page: {},
+  },
+};
+setProceduralGenerater({
+  type: 'page',
+  layout: 'index',
+  match(url){
+    if (['/','/index.html'].includes(url)) return pageData;
+  },
+  getItems(){
+    return pageData;
+  },
+});
 ```

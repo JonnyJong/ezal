@@ -118,6 +118,7 @@ async function build() {
   info('Rendering...');
   await renderAll(Array.from(pages));
   await renderAll(Array.from(posts));
+  info('Generating...');
   await generateAll(Array.from(pages));
   await generateAll(Array.from(posts));
   await generateAllProcedural();
