@@ -39,9 +39,9 @@ async function generateProcedural(origin: Procedural, item: ProceduralItem){
   const { writeFile } = require('ezal').util;
   switch (origin.type) {
     case 'assets':
-      return writeFile(item.path, item.data, origin.dataType);
+      return writeFile(path.join(process.cwd(), 'out', item.path), item.data, origin.dataType);
     case 'page':
-      return writeFile(item.path, await renderPug((origin.layout as string), item.data), 'utf-8');
+      return writeFile(path.join(process.cwd(), 'out', item.path), await renderPug((origin.layout as string), item.data), 'utf-8');
   }
 }
 function verifyUrl(expectation: string, actual: string): boolean {
@@ -63,7 +63,6 @@ export async function generateAllProcedural(){
     let items = await origin.getItems();
     if (!Array.isArray(items)) items = [items];
     for (const item of items) {
-      item.path = path.join(process.cwd(), 'out', item.path);
       await generateProcedural(origin, item);
     }
   }
