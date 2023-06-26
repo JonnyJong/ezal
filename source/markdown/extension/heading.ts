@@ -17,7 +17,7 @@ function getCustomId(text: string) {
 }
 
 function renderHeading(matched: any, v: any): string {
-  let anchor = encodeURI(matched.text.toLowerCase().replace(/[^A-Za-z0-9 \-]/g,'').trim().replace(/ /g, '-').replace(/\-{2,}/g, '-'));
+  let anchor = matched.text.toLowerCase().replace(/[^A-Za-z0-9\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff \-]/g,'').trim().replace(/ /g, '-').replace(/\-{2,}/g, '-');
   if (matched.customId) {
     if (v.markdown.anchors[matched.customId]) {
       warn(`Same anchor "${anchor}" in "${v.page?.path}"`);
