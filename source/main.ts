@@ -98,13 +98,13 @@ async function build() {
   await initStylus(ezalModule, themePath, dispatchEvent);
   await initRenderer(ezalModule, dispatchEvent);
   await initAssets(dispatchEvent);
-  await loadScript(themePath);
   let util = require('./util')(ezalModule.config);
   ezalModule.util = util;
   ezalModule.pug.url_for = util.url_for;
   ezalModule.pug.full_url_for = util.full_url_for;
   ezalModule.pug.now = util.now;
   ezalModule.pug.parseDate = util.parseDate;
+  await loadScript(themePath);
 
   info(`Ready in ${Date.now() - startStamp}ms.`);
 

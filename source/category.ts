@@ -51,8 +51,10 @@ export class CategoryRoot{
     this.children.set(name, child);
     return child;
   }
-  static getAll(): Map<string, Category>{
-    return categoriesRoot.children;
+  getAll(): Array<Category>{
+    let children: Array<Category> = [];
+    this.children.forEach((child)=>children = children.concat(child.getAll()))
+    return children;
   }
   static getByPathAuto(path: Array<string>): Category{
     if (!path || typeof path !== 'object' || !(path instanceof Array)) throw new Error('Need a non-empty Array<string>');
@@ -104,6 +106,7 @@ export class Category extends CategoryRoot{
     });
   }
   remove(): void{
+    this.children.forEach((child)=>child.remove());
     this.parent.children.delete(this.name);
     this.posts.forEach((post)=>{
       post.categories.delete(this.path);

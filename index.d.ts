@@ -225,7 +225,7 @@ declare module 'ezal'{
     /**
      * Get category's root
      */
-    static getAll(): Categories;
+    getAll(): Array<Category>;
     /**
      * Get subcategories at the category root, or automatically create subcategories if there are none
      * @param path Category array path

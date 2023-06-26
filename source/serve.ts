@@ -30,7 +30,7 @@ function startServer() {
     host: '127.0.0.1',
     root: path.join(process.cwd(), 'out'),
     file: path.join(process.cwd(), 'out/404.html'),
-    wait: 2,
+    ignore: path.join(process.cwd(), 'out'),
     logLevel: 0,
     middleware: [(req, res, next)=>{
       walkPages(req.url).then(()=>{
