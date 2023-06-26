@@ -127,7 +127,7 @@ async function build() {
 
   await copyAssets(ezalModule.config.theme);
 
-  info('Done!');
+  info('Done in ' + (Date.now() - startStamp) + 'ms.');
 }
 
 function serve() {

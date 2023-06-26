@@ -160,9 +160,10 @@ async function matchLines(source: string, markdownV: any, lines: string[], page:
     if (lines[i] === '' || typeof lines[i] !== 'string') continue;
     let lineMatcheds: Matcheds = [];
     for (const name in extensions.inline) {
+      if (!Object.prototype.hasOwnProperty.call(extensions.inline, name)) continue;
       let str = lines[i];
       let offset = 0;
-      while (Object.prototype.hasOwnProperty.call(extensions.inline, name)) {
+      while (true) {
         let index = await extensions.inline[name].start(str, { page: page ? page : undefined, markdown: markdownV });
         if (typeof index !== 'number' || index < 0) break;
         let matched = await extensions.inline[name].match(str.slice(index), { page: page ? page : undefined, markdown: markdownV });

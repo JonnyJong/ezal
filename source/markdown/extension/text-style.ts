@@ -3,11 +3,11 @@ import { markdownLine } from '../../markdown';
 type MarkdownExtension = import('../../markdown').MarkdownExtension;
 
 const rule = {
-  bold: /\*\*(.*)+\*\*/,
-  italic: /\*(.*)+\*/,
-  boldAndItalic: /\*\*\*(.*)+\*\*\*/,
-  underscore: /__(.*)+__/,
-  del: /~~(.*)+~~/,
+  bold: /\*\*(.*)\*\*/,
+  italic: /\*(.*)\*/,
+  boldAndItalic: /\*\*\*(.*)\*\*\*/,
+  underscore: /__(.*)__/,
+  del: /~~(.*)~~/,
 };
 
 const bold: MarkdownExtension = {
@@ -19,7 +19,7 @@ const bold: MarkdownExtension = {
   },
   match(src) {
     let raw = src.match(rule.bold)?.[0];
-    if (!raw || raw.includes('\n')) return;
+    if (!raw) return;
     let text = raw.slice(2, raw.length - 2).trim();
     return{
       raw,
@@ -39,7 +39,7 @@ const italic: MarkdownExtension = {
   },
   match(src) {
     let raw = src.match(rule.italic)?.[0];
-    if (!raw || raw.includes('\n')) return;
+    if (!raw) return;
     let text = raw.slice(1, raw.length - 1).trim();
     return{
       raw,
@@ -59,7 +59,7 @@ const boldAndItalic: MarkdownExtension = {
   },
   match(src) {
     let raw = src.match(rule.boldAndItalic)?.[0];
-    if (!raw || raw.includes('\n')) return;
+    if (!raw) return;
     let text = raw.slice(3, raw.length - 3).trim();
     return{
       raw,
@@ -79,7 +79,7 @@ const underscore: MarkdownExtension = {
   },
   match(src) {
     let raw = src.match(rule.underscore)?.[0];
-    if (!raw || raw.includes('\n')) return;
+    if (!raw) return;
     let text = raw.slice(2, raw.length - 2).trim();
     return{
       raw,
@@ -99,7 +99,7 @@ const del: MarkdownExtension = {
   },
   match(src) {
     let raw = src.match(rule.del)?.[0];
-    if (!raw || raw.includes('\n')) return;
+    if (!raw) return;
     let text = raw.slice(2, raw.length - 2).trim();
     return{
       raw,
