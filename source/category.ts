@@ -53,7 +53,10 @@ export class CategoryRoot{
   }
   getAll(): Array<Category>{
     let children: Array<Category> = [];
-    this.children.forEach((child)=>children = children.concat(child.getAll()))
+    this.children.forEach((child)=>{
+      children.push(child);
+      children = children.concat(child.getAll());
+    });
     return children;
   }
   static getByPathAuto(path: Array<string>): Category{
