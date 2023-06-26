@@ -45,10 +45,10 @@ const link: MarkdownExtension = {
   level: 'inline',
   priority: 0,
   start(src){
-    return src.match(/\[(.*)\]\((.*)\)/)?.index;
+    return src.match(/\[(.+?)\]\((.+?)\)/)?.index;
   },
   match(src) {
-    let matched = src.match(/\[(.*)\]\((.*)\)/);
+    let matched = src.match(/\[(.+?)\]\((.+?)\)/);
     if (!matched) return;
     let body = matched[2].split(' ');
     let link = body[0];

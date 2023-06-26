@@ -27,7 +27,7 @@ const codeblock: MarkdownExtension = {
 const fenceCodeblock: MarkdownExtension = {
   name: 'fence-codeblock',
   level: 'block',
-  priority: 0,
+  priority: 1,
   start(src) {
     return src.match(/(^|(?<=\n))(```|~~~)(.*)\n([\S\s]*?)\n(```|~~~)/)?.index;
   },
