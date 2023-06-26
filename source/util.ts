@@ -37,7 +37,7 @@ let dateTemplate = {
 export function parseDate(date: any, format: string, option: any = dateTemplate) {
   const timeOffset = config.timezone * 3600000;
   if (typeof format !== 'string') {
-    format = option.ISO;
+    format = 'yyyy-MM-ddTHH:mm:ss.zzzZ';
   }
   switch (typeof date) {
     case 'number':

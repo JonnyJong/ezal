@@ -29,6 +29,14 @@ function renderHeading(matched: any, v: any): string {
   }else{
     v.markdown.anchors[anchor] = 0;
   }
+  if (v.page && (v.page.toc === undefined || v.page.toc === true || Array.isArray(v.page.toc))) {
+    if (!Array.isArray(v.page.toc)) v.page.toc = [];
+    v.page.toc.push({
+      name: matched.text,
+      id: config.markdown.heading_anchor_prefix + anchor,
+      level: matched.level,
+    });
+  }
   return`<h${matched.level} id="${config.markdown.heading_anchor_prefix}${anchor}">${matched.text}</h${matched.level}>`;
 }
 
