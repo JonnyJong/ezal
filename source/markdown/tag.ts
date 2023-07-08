@@ -4,6 +4,7 @@ type MarkdownExtensionVariables = import('../markdown').MarkdownExtensionVariabl
 type MarkdownTag = {
   name: string,
   level: 'block' | 'inline',
+  end: void | undefined | boolean,
   render(matched: MarkdownMatched, v?: MarkdownExtensionVariables): string | Promise<string>,
   priority?: number,
 };
@@ -56,14 +57,24 @@ let blockTagRender: MarkdownExtension = {
     let label = first.slice(3).split(' ')[0];
     let type = label.match(/[A-Za-z]+/)?.[0];
     if (!type || !tags.block[type]) return;
-    let endStr = '\n{% end' + label + ' %}';
-    let end = src.indexOf(endStr);
-    if (end === -1) return;
-    let text = src.slice(first.length, end).trim();
     let args = first.slice(3, first.length - 2).trim().split(' ').slice(1);
+    let end = first.length;
+    if (tags.block[type].end) {
+      let endStr = '\n{% end' + label + ' %}';
+      end = src.indexOf(endStr);
+      if (end === -1) return;
+      let text = src.slice(first.length, end).trim();
+      return{
+        raw: src.slice(0, end + endStr.length),
+        text,
+        arg: args.join(' '),
+        args,
+        type,
+      };
+    }
     return{
-      raw: src.slice(0, end + endStr.length),
-      text,
+      raw: src.slice(0, end),
+      text: '',
       arg: args.join(' '),
       args,
       type,
@@ -82,6 +93,7 @@ function setMarkdownTag(exts: MarkdownTag | MarkdownTag[]) {
     if (ext.name !== ext.name.match(/[A-Za-z]+/)?.[0]) throw new Error('MarkdownTag name should only use A-Z and a-z.');
     if (typeof ext.render !== 'function') throw new Error('MarkdownTag\'s render should be a Function.');
     if (!['block', 'inline'].includes(ext.level)) throw new Error('Unexpected MarkdownTag level.');
+    if (ext.level === 'block' && ext.end !== false) ext.end = true;
     if (!tags[ext.level][ext.name] || !tags[ext.level][ext.name].priority || (typeof ext.priority === 'number' && (tags[ext.level][ext.name].priority as number) < ext.priority)) {
       tags[ext.level][ext.name] = ext;
     }

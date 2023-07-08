@@ -399,6 +399,7 @@ declare module 'ezal'{
   export type MarkdownTag = {
     name: string,
     level: 'block' | 'inline',
+    end: void | undefined | boolean,
     render(matched: MarkdownMatched, v?: MarkdownExtensionVariables): string | Promise<string>,
     priority?: number,
   }
