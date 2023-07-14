@@ -3,15 +3,22 @@
 // Definitions by: Jonny <https://github.com/JonnyJong>
 // Definitions: https://github.com/JonnyJong/ezal
 
-type EventType = 'init' | 'init-pages' | 'pre-render' | 'post-render' | 'pre-generate' | 'post-generate' | 'pre-style' | 'post-style' | 'pre-assets' | 'post-assets'
-
 declare module 'ezal'{
   /**
    * Add a listener on ezal event
    * @param type Event type
    * @param listener Event listener
    */
-  export function addListener(type: EventType, listener: Function): void
+  export function addListener(type: 'init', listener: ()=>any): void
+  export function addListener(type: 'init-pages', listener: ()=>any): void
+  export function addListener(type: 'pre-render', listener: (page: Page | Post)=>any): void
+  export function addListener(type: 'post-render', listener: (page: Page | Post, variables: any)=>any): void
+  export function addListener(type: 'pre-generate', listener: (page: Page | Post)=>any): void
+  export function addListener(type: 'post-generate', listener: (generated: {page: Page | Post, html: string})=>any): void
+  export function addListener(type: 'pre-style', listener: (styleContent: {stylus: string, css: ''})=>any): void
+  export function addListener(type: 'post-style', listener: (styleContent: {stylus: string, css: string})=>any): void
+  export function addListener(type: 'pre-assets', listener: ()=>any): void
+  export function addListener(type: 'post-assets', listener: ()=>any): void
   /**
    * Set pug option in HTML template
    */
@@ -53,7 +60,7 @@ declare module 'ezal'{
      * @param options Set pug option in HTML template
      * @returns HTML string
      */
-    function pug(layoutName: string, options: any): Promise<string>
+    function pug(layoutName: 'post' | 'page' | string, options: any): Promise<string>
     /**
      * Render stylus to CSS
      * @param stylusContext Stylus content
@@ -131,7 +138,7 @@ declare module 'ezal'{
     /**
      * Page's HTML template
      */
-    layout: string
+    layout: 'page' | 'post' | string
     /**
      * Page's origin Markdown content
      */
@@ -435,7 +442,7 @@ declare module 'ezal'{
     /**
      * When type is page, a layout must be set
      */
-    layout?: string,
+    layout?: 'page' | 'post' | string,
     /**
      * When type is assets, a dataType must be set
      */

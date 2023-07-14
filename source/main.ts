@@ -14,7 +14,7 @@ import path from "path";
 import Module from "module";
 import { loadScript } from "./script-loader";
 import { getLocale } from "./locale";
-import { generateAllProcedural, setProceduralGenerater } from "./procedural";
+import { generateAllProcedural, setProceduralGenerater, initProcedural } from "./procedural";
 type CategoryRoot = import("./category").CategoryRoot;
 type Tags = import("./tag").Tags;
 type MarkdownMatched = import('./markdown').MarkdownMatched;
@@ -105,6 +105,7 @@ async function build() {
   ezalModule.pug.now = util.now;
   ezalModule.pug.parseDate = util.parseDate;
   await loadScript(themePath);
+  await initProcedural(dispatchEvent);
 
   info(`Ready in ${Date.now() - startStamp}ms.`);
 

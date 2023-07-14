@@ -35,13 +35,23 @@ export function setProceduralGenerater(items: Procedural | Procedural[]): void{
     procedural.push(item);
   });
 }
+let dispatchEvent: Function;
 async function generateProcedural(origin: Procedural, item: ProceduralItem){
   const { writeFile } = require('ezal').util;
   switch (origin.type) {
     case 'assets':
       return writeFile(path.join(process.cwd(), 'out', item.path), item.data, origin.dataType);
     case 'page':
-      return writeFile(path.join(process.cwd(), 'out', item.path), await renderPug((origin.layout as string), item.data), 'utf-8');
+      if (item.data.page) {
+        item.data.page.url = item.path;
+      }else{
+        item.data.page = {url: item.path};
+      }
+      await dispatchEvent('pre-generate', item.data.page);
+      let generated = { page: item.data.page, html: '' };
+      generated.html = await renderPug((origin.layout as string), item.data);
+      await dispatchEvent('post-generate', generated);
+      return writeFile(path.join(process.cwd(), 'out', item.path), generated.html, 'utf-8');
   }
 }
 function verifyUrl(expectation: string, actual: string): boolean {
@@ -71,4 +81,7 @@ export async function autoGenerateProcedural(url: string){
   let target = await findProcedural(url);
   if (!target) return;
   return generateProcedural(target.origin, target.item);
+}
+export function initProcedural(fn: Function) {
+  dispatchEvent = fn;
 }

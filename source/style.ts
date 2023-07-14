@@ -84,7 +84,7 @@ async function generateStyle() {
       // @ts-ignore
       css: '',
     };
-    styleContent.stylus = await readFile(files[i], 'utf-8')
+    styleContent.stylus = await readFile(files[i], 'utf-8');
     await dispatchEvent('pre-style', styleContent);
     styleContent.css = renderStylus(
       styleContent.stylus,
