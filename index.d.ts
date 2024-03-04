@@ -16,7 +16,7 @@ declare module 'ezal' {
   /**
    * Ezal 选项
    */
-  export interface IEzalConfig<ThemeConfig> {
+  export interface IEzalOptions<ThemeConfig> {
     /**
      * 源路径
      * 默认为`src`
@@ -103,6 +103,86 @@ declare module 'ezal' {
        * 默认`false`
        */
       trailingIndexDotHTML?: boolean,
+    },
+  }
+  export function init<ThemeConfig>(options: IEzalOptions<ThemeConfig>): void;
+  /**
+   * Ezal 配置
+   */
+  export interface IEzalConfig<ThemeConfig> {
+    /**
+     * 源路径
+     */
+    source: string,
+    /**
+     * 输出路径
+     */
+    out: string,
+    /**
+     * 主题名称
+     */
+    themeName: string,
+    /**
+     * 插件
+     */
+    plugins: IPlugin[],
+    /**
+     * 站点选项
+     */
+    site: {
+      /**
+       * 站点标题
+       */
+      title: string,
+      /**
+       * 站点副标题
+       */
+      subtitle?: string,
+      /**
+       * 站点描述
+       */
+      description?: string,
+      /**
+       * 站点关键词
+       */
+      keywords?: string[],
+      /**
+       * 作者
+       */
+      author: string,
+      /**
+       * 站点语言
+       */
+      language: string,
+      /**
+       * 站点域名
+       */
+      host: string,
+      /**
+       * 站点根目录
+       */
+      root: string,
+      /**
+       * 时区
+       */
+      timezone: number,
+    },
+    /**
+     * 主题选项
+     */
+    theme?: ThemeConfig,
+    /**
+     * 编译选项
+     */
+    compile: {
+      /**
+       * 直接将 Markdown 文件渲染成 HTML 文件
+       */
+      trailingDotHTML: boolean,
+      /**
+       * 页面链接尾随`index.html`
+       */
+      trailingIndexDotHTML: boolean,
     },
   }
   /**
