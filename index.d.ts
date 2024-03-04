@@ -248,7 +248,7 @@ declare module 'ezal' {
     /**
      * 子分类
      */
-    children: { [name: string]: ICategory };
+    children: Map<string, ICategory>;
     /**
      * 获取分类路径
      */
@@ -321,7 +321,34 @@ declare module 'ezal' {
    * @description 仅 serve 模式可用
    */
   export function requestRefreshSource(path?: string): Promise<boolean>;
-  
+  /**
+   * 程序化生成器
+   */
+  export class IProceduralGenerater {
+    generate(path: string): Async<any>;
+  }
+  /**
+   * 设置多个程序化生成器
+   * @param generaters key 为对应产物生成路径
+   */
+  export function setProceduralGeneraters(generaters: Map<string, IProceduralGenerater>): void;
+  /**
+   * 移除程序化生成器
+   * @param generaters 要移除的生成器
+   */
+  export function removeProceduralGeneraters(generaters: string[]): void;
+  /**
+   * 请求插件
+   * @param name 插件名称
+   * @description 请求其他插件提供的函数……插件不存在时返回 undefined
+   */
+  export function requirePlugin(name: string): undefined | { [x: string | number | symbol]: any };
+  /**
+   * 组成辅助函数
+   * @param helpers 辅助函数
+   */
+  export function registerHelpers(helpers: { [name: string]: Function }): void;
+
   /*
     Layout
    */
