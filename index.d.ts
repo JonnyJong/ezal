@@ -163,6 +163,10 @@ declare module 'ezal' {
      */
     link: string;
     /**
+     * 源路径
+     */
+    path?: string;
+    /**
      * 页面编译路径
      */
     dist: string;
@@ -311,6 +315,12 @@ declare module 'ezal' {
    * @description 仅 init 阶段可用
    */
   export function registerSourceHandlers(...sourceHandlers: ISourceHandler[]): void;
+  /**
+   * 请求刷新源
+   * @param path 指定刷新的源文件路径
+   * @description 仅 serve 模式可用
+   */
+  export function requestRefreshSource(path?: string): Promise<boolean>;
   
   /*
     Layout
