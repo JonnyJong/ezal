@@ -6,7 +6,7 @@
 import { NormalToc } from "ezal-markdown";
 
 type Async<T> = T | Promise<T>;
-type SerializedData = string | number | boolean | null | SerializedData[] | { [key: string]: SerializedData };
+type SerializedData = string | number | boolean | null | undefined | SerializedData[] | { [key: string]: SerializedData };
 
 declare module 'ezal' {
   /* 
@@ -129,37 +129,134 @@ declare module 'ezal' {
    * Markdown 渲染器相关
    */
   export * as markdown from "ezal-markdown";
+  /**
+   * 页面对象
+   */
   export class IPage {
+    /**
+     * 页面布局模板名
+     * @default 'page'
+     */
     layout: string;
+    /**
+     * 页面标题
+     */
     title?: string;
+    /**
+     * 页面描述
+     */
     description?: string;
+    /**
+     * 页面关键词
+     */
+    keywords?: string[];
+    /**
+     * 页面创建时间
+     */
     date: Date;
+    /**
+     * 页面更新时间
+     */
     updated: Date;
-    permalink?: string;
-    published: boolean;
+    /**
+     * 页面链接
+     */
+    link: string;
+    /**
+     * 页面编译路径
+     */
+    dist: string;
+    /**
+     * Markdown 源文本
+     */
     source: string;
+    /**
+     * HTML
+     */
     content: string;
+    /**
+     * 页面目录
+     */
     toc: NormalToc;
-    meta: { [name: string]: SerializedData };
+    /**
+     * 页面元数据
+     */
+    meta: {
+      /**
+       * 页面永久链接
+       */
+      permalink?: string;
+      [name: string]: SerializedData;
+    };
   }
+  /**
+   * 文章对象
+   */
   export class IPost extends IPage {
+    /**
+     * 文章布局模板名
+     * @default 'post'
+     * @readonly
+     */
     layout: 'post';
+    /**
+     * 文章标签
+     */
     tags: Set<ITag>;
+    /**
+     * 文章分类
+     */
     categories: Set<ICategory>;
+    /**
+     * 文章为草稿
+     */
     draft: boolean;
   }
+  /**
+   * 标签对象
+   */
   export class ITag {
+    /**
+     * 标签名
+     */
     name: string;
+    /**
+     * 标签相关文章
+     */
     posts: Set<IPost>;
   }
+  /**
+   * 分类对象
+   */
   export class ICategory {
+    /**
+     * 分类名
+     */
     name: string;
+    /**
+     * 分类相关文章
+     */
     posts: Set<IPost>;
+    /**
+     * 父级分类
+     */
     parent: ICategory | null;
+    /**
+     * 子分类
+     */
     children: { [name: string]: ICategory };
+    /**
+     * 获取分类路径
+     */
     getPath(): string[];
   }
+  /**
+   * 获取所有标签
+   */
   export function getAllTags(): Set<ITag>;
+  /**
+   * 获取所有根分类
+   */
   export function getAllRootCategories(): Set<ICategory>;
 
   /* 
@@ -218,10 +315,10 @@ declare module 'ezal' {
   /*
     Layout
    */
+  export type LayoutHandlers = { [name: string]: Function };
   /**
    * Layout 编译器
    */
-  export type LayoutHandlers = { [name: string]: Function };
   export class ILayoutCompiler {
     /**
      * 编译 layout
