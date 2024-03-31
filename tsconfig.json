@@ -11,7 +11,7 @@
     "noFallthroughCasesInSwitch": true,
     "rootDir": "src",
     "outDir": "dist",
-    "baseUrl": "src",
+    // "baseUrl": "src",
     "allowJs": false,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
