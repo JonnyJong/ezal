@@ -29,6 +29,16 @@ export function setTag(name: string, post: IPost) {
   post.tags.add(tag);
 }
 
+export function removeTag(name: string, post: IPost) {
+  let tag = tags.get(name);
+  if (!tag || !post.tags.has(tag)) return;
+  post.tags.delete(tag);
+  tag.posts.delete(post);
+  if (tag.posts.size === 0) {
+    tags.delete(name);
+  }
+}
+
 export function getAllTags(): ITag[] {
   return [...tags.values()];
 }
