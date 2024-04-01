@@ -212,7 +212,7 @@ export * as markdown from "ezal-markdown";
 /**
  * 页面对象
  */
-export class IPage {
+export declare class IPage {
   /**
    * 页面布局模板名
    * @default 'page'
@@ -276,7 +276,7 @@ export class IPage {
 /**
  * 文章对象
  */
-export class IPost extends IPage {
+export declare class IPost extends IPage {
   /**
    * 文章布局模板名
    * @default 'post'
@@ -299,20 +299,22 @@ export class IPost extends IPage {
 /**
  * 标签对象
  */
-export class ITag {
+export declare class ITag {
   /**
    * 标签名
+   * @readonly
    */
   name: string;
   /**
    * 标签相关文章
+   * @readonly
    */
   posts: Set<IPost>;
 }
 /**
  * 分类对象
  */
-export class ICategory {
+export declare class ICategory {
   /**
    * 分类名
    */
