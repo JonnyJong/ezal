@@ -3,6 +3,12 @@ import { NormalToc } from "ezal-markdown";
 type Async<T> = T | Promise<T>;
 type SerializedData = string | number | boolean | null | undefined | SerializedData[] | { [key: string]: SerializedData };
 
+export declare class ITheme<ThemeConfig> {
+  dependencies?: string[];
+  constructor();
+  init(config: ThemeConfig): any;
+}
+
 /* 
   Global
   全局
@@ -32,7 +38,7 @@ export interface IEzalOptions<ThemeConfig> {
   /**
    * 插件
    */
-  plugins: IPlugin[],
+  plugins?: IPlugin[],
   /**
    * 站点选项
    */
@@ -164,7 +170,7 @@ export interface IEzalConfig<ThemeConfig> {
   /**
    * 主题选项
    */
-  theme?: ThemeConfig,
+  theme: ITheme<ThemeConfig>,
   /**
    * 编译选项
    */

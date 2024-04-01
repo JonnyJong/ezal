@@ -1,12 +1,7 @@
 import path from "path";
+import { ITheme } from "./types";
 
-export declare class Theme<ThemeConfig> {
-  dependencies?: string[];
-  constructor();
-  init(config: ThemeConfig): any;
-};
-
-export async function tryLoadTheme<ThemeConfig>(name: string): Promise<Theme<ThemeConfig> | undefined> {
+export async function tryLoadTheme<ThemeConfig>(name: string): Promise<ITheme<ThemeConfig> | undefined> {
   try {
     return require(path.join(process.cwd(), 'themes', name));
   } catch {}

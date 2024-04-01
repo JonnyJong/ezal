@@ -1,55 +1,10 @@
 import { info, warn } from "./console";
-import { IPlugin } from "./plugin";
-import { Theme, tryLoadTheme } from "./theme";
+import { tryLoadTheme } from "./theme";
+import { IEzalConfig, IEzalOptions, ITheme } from "./types";
 
-export interface IEzalInitOptions<ThemeConfig> {
-  source?: string,
-  out?: string,
-  themeName: string,
-  plugins?: IPlugin[],
-  site: {
-    title: string,
-    subtitle?: string,
-    description?: string,
-    keywords?: string[],
-    author: string,
-    language: string,
-    host: string,
-    root?: string,
-    timezone?: number,
-  },
-  theme: ThemeConfig,
-  compile?: {
-    trailingDotHTML?: boolean,
-    trailingIndexDotHTML?: boolean,
-  }
-};
-export interface IEzalOptions<ThemeConfig> {
-  source: string,
-  out: string,
-  themeName: string,
-  plugins: IPlugin[],
-  site: {
-    title: string,
-    subtitle?: string,
-    description?: string,
-    keywords?: string[],
-    author: string,
-    language: string,
-    host: string,
-    root: string,
-    timezone: number,
-  },
-  theme: Theme<ThemeConfig>,
-  compile: {
-    trailingDotHTML: boolean,
-    trailingIndexDotHTML: boolean,
-  }
-};
+let config: IEzalConfig<any>;
 
-let config: IEzalOptions<any>;
-
-export async function init<ThemeConfig>(options: IEzalInitOptions<ThemeConfig>) {
+export async function init<ThemeConfig>(options: IEzalOptions<ThemeConfig>) {
   info('ezal', 'Checking config');
   if (typeof options !== 'object') throw new TypeError('Valid configurations must be provided.');
 
@@ -76,7 +31,7 @@ export async function init<ThemeConfig>(options: IEzalInitOptions<ThemeConfig>) 
       root: '/',
       timezone: 0,
     },
-    theme: await tryLoadTheme<ThemeConfig>(options.themeName) as Theme<ThemeConfig>,
+    theme: await tryLoadTheme<ThemeConfig>(options.themeName) as ITheme<ThemeConfig>,
     compile: {
       trailingDotHTML: false,
       trailingIndexDotHTML: false,
