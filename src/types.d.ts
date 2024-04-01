@@ -339,11 +339,11 @@ export declare class ICategory {
 /**
  * 获取所有标签
  */
-export function getAllTags(): Set<ITag>;
+export function getAllTags(): ITag[];
 /**
  * 获取所有根分类
  */
-export function getAllRootCategories(): Set<ICategory>;
+export function getAllRootCategories(): ICategory[];
 
 /* 
   Plugins
