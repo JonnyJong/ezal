@@ -51,7 +51,8 @@ const clients = new Set<ServerResponse>();
 
 function resolveUrl(url?: string): string | undefined {
 	if (!url) return;
-	const root = getConfig().site.root ?? '/';
+	const root = getConfig().site.root;
+	if (!root || root === '/') return url;
 	if (!url.startsWith(root)) return;
 	url = url.slice(root.length);
 	if (url.length === 0) return '/';
