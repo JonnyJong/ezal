@@ -14,7 +14,10 @@ function resolveFavicons(): [type: string, href: string][] {
 }
 
 const favicons = resolveFavicons();
-const title = page.title ? `${page.title} - ${site.title}` : site.title;
+const title =
+	page.title && page.layout !== 'home'
+		? `${page.title} - ${site.title}`
+		: site.title;
 const description = page.description ?? site.description;
 const keywords = (page.keywords ?? site.keywords ?? []).join(',');
 const canonicalUrl = URL.full(page.url);
