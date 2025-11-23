@@ -1,9 +1,12 @@
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { Cache, VirtualAssets } from 'ezal';
+import CleanCSS from 'clean-css';
+import { Cache, getMode, VirtualAssets } from 'ezal';
 import stylus from 'stylus';
 
 const base = path.join(__dirname, '../assets/styles/_code.styl');
+
+const cleaner = new CleanCSS();
 
 class CodeblockStyle extends VirtualAssets {
 	#baseCache = new Cache<string>();
@@ -19,7 +22,9 @@ class CodeblockStyle extends VirtualAssets {
 			cache = stylus.render(file);
 			this.#baseCache.set(cache);
 		}
-		return this.extra + cache;
+		const result = this.extra + cache;
+		if (getMode() !== 'build') return result;
+		return cleaner.minify(result).styles;
 	}
 	protected onDependenciesChanged() {
 		super.invalidated();

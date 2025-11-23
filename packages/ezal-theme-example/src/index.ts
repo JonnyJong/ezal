@@ -48,8 +48,12 @@ export async function theme(config?: ThemeConfig): Promise<EzalThemeConfig> {
 			'asset:add': [imageAddHook],
 			'asset:update': [imageUpdateHook],
 			'asset:remove': [imageRemoveHook],
-			'build:before:assets-virtual': [buildPagefind, updateSitemap],
-			'build:after': [setupCodeblockStyle, stopPagefind, exeIndexNow],
+			'build:before:assets-virtual': [
+				setupCodeblockStyle,
+				buildPagefind,
+				updateSitemap,
+			],
+			'build:after': [stopPagefind, exeIndexNow],
 			'article:add': [updateHomePage, updateArchivePage],
 			'article:update': [
 				updateHomePage,
