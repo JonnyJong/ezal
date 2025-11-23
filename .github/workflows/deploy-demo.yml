@@ -35,7 +35,7 @@ jobs:
         run: pnpm build
 
       - name: Build demo
-        run: pnpm run build
+        run: node ./node_modules/ezal/dist/index.js build
         working-directory: './packages/demo'
 
       - name: Upload artifact
