@@ -44,7 +44,6 @@ function generate(mod: string): RolldownOptions {
 
 export default defineConfig([
 	generate('ezal'),
-	generate('ezal-theme-example'),
 	{
 		...generate('ezal-layout'),
 		input: [
@@ -55,4 +54,5 @@ export default defineConfig([
 			'packages/ezal-layout/src/render.ts',
 		],
 	},
+	generate('ezal-theme-example'),
 ]);
