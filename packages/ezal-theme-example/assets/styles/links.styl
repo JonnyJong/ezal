@@ -1,0 +1,121 @@
+@import '_index'
+
+// MARK: Header
+header
+	img
+		filter blur(4px)
+		scale 1.05
+
+.cates
+	display flex
+	flex-wrap wrap
+	font-weight bold
+	gap 4px 16px
+
+.tag
+	&:before
+		content '#'
+		opacity .5
+
+.article-info
+	display flex
+	flex-wrap wrap
+	gap 8px
+	:before
+		margin-right 4px
+
+// MARK: Main
+main
+	display flex
+	flex-direction row-reverse
+
+article
+	flex 1
+	padding 8px
+	width 0
+	text-wrap pretty
+
+.sticky
+	position sticky
+	top var(--sticky)
+	z-index 4
+	background var(--panel)
+	backdrop-filter blur(4px)
+	--sticky 0px
+
+.sticky-content
+	.sticky
+		z-index 3
+		--sticky 40px
+	.sticky-content
+		.sticky
+			z-index 2
+			--sticky 80px
+		.sticky-content
+			.sticky
+				z-index 1
+				--sticky 80px
+			.sticky-content
+				.sticky
+					z-index 0
+					--sticky 80px
+
+if linksStyle('heading')
+	@import '_article/heading'
+
+@import '_article/other'
+
+if linksStyle('image')
+	@import '_article/image'
+
+if linksStyle('table')
+	@import '_article/table'
+
+if linksStyle('list')
+	@import '_article/list'
+
+if linksStyle('footnote')
+	@import '_article/footnote'
+
+if linksStyle('tabs')
+	@import '_article/tabs'
+
+if linksStyle('note')
+	@import '_article/note'
+
+if linksStyle('fold')
+	@import '_article/fold'
+
+if linksStyle('kbd')
+	@import '_article/kbd'
+
+// MARK: Links
+.links
+	margin 16px 0
+	text-align center
+	text-wrap balance
+	a
+		position relative
+		display inline-block
+		margin 8px
+		padding 16px
+		max-width 300px
+		width 100%
+		border 1px solid var(--border)
+		background var(--panel)
+		color var(--text)
+		text-align left
+		text-decoration none
+		transition .1s
+		&:hover
+			border-color var(--theme)
+			color var(--text)
+			&:after
+				opacity .5
+	img
+		width 48px
+		height 48px
+		object-fit cover
+
+.link-title
+	font-weight bold

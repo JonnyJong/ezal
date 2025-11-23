@@ -1,0 +1,29 @@
+.table
+	overflow auto
+	margin 16px 0
+	max-width 100%
+	max-height 80vh
+	width max-content
+	border 1px solid var(--border)
+
+table
+	border-collapse collapse
+	table-layout fixed
+
+thead
+	position sticky
+	top 0
+	background var(--text-a2)
+	backdrop-filter blur(8px)
+
+tr:nth-child(even)
+	background var(--text-a1)
+
+th
+td
+	padding 4px 8px
+	border 1px solid var(--border)
+	word-break break-word
+
+th
+	white-space nowrap

@@ -1,0 +1,61 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Ezal: Server Mode",
+			"program": "${workspaceFolder}/packages/ezal/dist/index.js",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "node",
+			"cwd": "${workspaceFolder}/packages/demo",
+			"args": ["serve"],
+		},
+		{
+			"name": "Ezal: Server Mode (Profile)",
+			"program": "${workspaceFolder}/packages/ezal/dist/index.js",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "node",
+			"cwd": "${workspaceFolder}/packages/demo",
+			"args": ["serve"],
+			"profileStartup": true,
+		},
+		{
+			"name": "Ezal: Server Mode (Verbose)",
+			"program": "${workspaceFolder}/packages/ezal/dist/index.js",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "node",
+			"cwd": "${workspaceFolder}/packages/demo",
+			"args": ["serve", "--verbose"],
+		},
+		{
+			"name": "Ezal: Build Mode",
+			"program": "${workspaceFolder}/packages/ezal/dist/index.js",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "node",
+			"cwd": "${workspaceFolder}/packages/demo",
+			"args": ["build", "--clean"],
+		},
+		{
+			"name": "Ezal: Build Mode (Dry Run)",
+			"program": "${workspaceFolder}/packages/ezal/dist/index.js",
+			"request": "launch",
+			"skipFiles": [
+				"<node_internals>/**"
+			],
+			"type": "node",
+			"cwd": "${workspaceFolder}/packages/demo",
+			"args": ["build", "--dry-run"],
+		},
+	],
+}

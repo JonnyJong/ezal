@@ -1,0 +1,29 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"command": "node_modules/.bin/rolldown",
+			"args": ["-c", "${workspaceFolder}/rolldown.config.ts", "-w"],
+			"windows": { "command": "node_modules/.bin/rolldown.CMD" },
+			"problemMatcher": [],
+			"group": "build",
+			"label": "监视",
+			"presentation": {
+				"group": "watch"
+			},
+		},
+		{
+			"type": "shell",
+			"command": "node_modules/.bin/rolldown",
+			"args": ["-c", "${workspaceFolder}/rolldown.config.ts"],
+			"windows": { "command": "node_modules/.bin/rolldown.CMD" },
+			"problemMatcher": [],
+			"group": "build",
+			"label": "构建",
+			"presentation": {
+				"group": "build"
+			},
+		},
+	]
+}

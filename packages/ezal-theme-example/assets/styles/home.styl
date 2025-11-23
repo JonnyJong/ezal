@@ -1,0 +1,124 @@
+@import '_index'
+
+header
+	padding 0
+
+.home
+	display flex
+	justify-content space-between
+	align-items center
+	height 100vh
+
+.home-title
+	font 28px var(--font-title)
+
+.home-logo
+	max-width 350px
+
+@keyframes indicator
+	0%
+	100%
+		bottom 32px
+	50%
+		bottom 16px
+
+.home-indicator
+	position absolute
+	top unset
+	right 0
+	bottom 32px
+	left 0
+	z-index 1
+	margin 0 auto
+	width max-content
+	height max-content
+	animation indicator 2s ease-in-out infinite
+
+.article-list
+	display flex
+	flex-wrap wrap
+	gap 16px
+	a
+		color var(--text)
+		text-decoration none
+
+.article
+	position relative
+	display flex
+	flex-direction column
+	overflow hidden
+	width calc(50% - 8px)
+	border 1px solid var(--border)
+	background var(--panel)
+	transition .2s border
+	&>*
+		position relative
+	img
+		width 100%
+		height 200px
+		object-fit cover
+	h2
+		overflow hidden
+		margin 0 0 16px 0
+		height 36px * 2
+		text-wrap pretty
+		transition .2s color
+	time
+		float right
+	&:hover:not(:has(a:hover))
+	&:focus-visible:not(:has(a:focus-visible))
+		border-color var(--theme)
+		h2
+			color var(--theme)
+		.bloom
+			opacity .5
+	object>a
+		margin-right 8px
+
+.article-info
+	padding 16px
+
+.tag:before
+	content '#'
+	opacity .5
+
+.bloom
+	position absolute
+	opacity 0
+	filter blur(32px) brightness(1.5)
+	transition .1s
+	inset 0
+	scale 1.5
+	translate 0 25%
+
+.pages
+	display flex
+	justify-content center
+	margin-top 16px
+
+.page
+	display block
+	width 32px
+	height 32px
+	color var(--text)
+	text-align center
+	text-decoration none
+	line-height 32px
+
+a.page
+	background var(--text-a2)
+	transition .1s
+	&:hover
+		background var(--theme)
+		color var(--theme-text)
+
+@media (max-width 700px)
+	.article
+		width 100%
+	.home
+	.contact
+		justify-content center
+	.home
+		flex-direction column-reverse
+	.home-title
+		text-align center

@@ -1,0 +1,30 @@
+p img
+	max-width 100%
+	max-height 80vh
+	width auto
+	height auto
+	vertical-align middle
+	transition .1s background
+	object-fit contain
+	&:not(.loaded)
+		background var(--img-color)
+
+.image
+	text-align center
+	figcaption
+		opacity .8
+	img
+		@extend p img
+
+html:has(.img-scale)
+	overflow hidden
+
+.img-scale
+	position fixed
+	z-index 200
+	margin auto
+	background #0008
+	inset 0
+	img
+		position absolute
+		height auto

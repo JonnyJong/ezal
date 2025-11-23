@@ -1,0 +1,12 @@
+{
+	"include": ["./runtime.d.ts"],
+	"compilerOptions": {
+		"target": "es2024",
+		"module": "nodenext",
+		"lib": ["ESNext", "DOM"],
+		"jsx": "preserve",
+		"jsxFactory": "h",
+		"noEmit": true,
+		"types": ["./runtime.d.ts"],
+	},
+}

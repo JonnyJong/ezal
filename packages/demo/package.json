@@ -1,0 +1,14 @@
+{
+	"name": "demo",
+	"private": true,
+	"scripts": {
+		"build": "ezal build",
+		"serve": "ezal serve",
+		"clean": "ezal clean"
+	},
+	"dependencies": {
+		"@js-temporal/polyfill": "^0.5.1",
+		"ezal": "workspace:*",
+		"ezal-theme-example": "workspace:*"
+	}
+}

@@ -1,0 +1,35 @@
+@import '_index'
+
+.ready
+	position relative
+	overflow hidden
+	padding 0
+	line-height 1
+	transition .3s height
+	*
+		list-style none
+	a
+		position absolute
+		text-decoration none
+		transition .3s
+
+.tags.ready
+	a
+		translate -50% -50%
+
+.categories.ready
+	a
+		display block
+		padding 8px
+		border 1px solid var(--border)
+		border-radius 8px
+		background var(--panel)
+		color var(--text)
+		&:hover
+			border-color var(--theme)
+			color var(--theme)
+			&:after
+				opacity .2
+
+.archive a
+	margin-left 1ch

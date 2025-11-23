@@ -1,4 +1,4 @@
-English | [中文](./readme_zh.md)
+[English](./readme.md) | 中文
 
 # ezal
 
@@ -7,21 +7,20 @@ English | [中文](./readme_zh.md)
 - [`ezal-layout`](./packages/ezal-layout/)
 - [`demo`](./packages/demo/)
 
-## Build
-Node version 22 or higher is required.
+## 构建
+需要 node 22 及以上版本。
 
 ```sh
 pnpm install
 pnpm build
 ```
 
-## Dev
+## 开发
 
 ```bash
 cd packages/demo
 pnpm run serve
 ```
 
-
-## Document
-[Docs](https://jonnyjong.github.io/ezal/docs/en/ezal)
+## 文档
+[文档](https://jonnyjong.github.io/ezal/docs/zh/ezal)

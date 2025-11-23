@@ -1,0 +1,31 @@
+.links
+	display flex
+	flex-wrap wrap
+	justify-content center
+	margin 16px 0
+	gap 8px
+	a
+		position relative
+		flex 1 1 auto
+		padding 16px
+		max-width 340px
+		width 100%
+		border 1px solid var(--border)
+		background var(--panel)
+		color var(--text)
+		text-decoration none
+		transition .1s
+		&:hover
+			border-color var(--theme)
+	i
+		position absolute
+		top 16px
+		right 16px
+	img
+		margin-bottom 16px
+		width 48px
+		height 48px
+		object-fit cover
+
+.link-title
+	font-weight bold

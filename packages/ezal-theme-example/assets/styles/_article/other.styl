@@ -1,0 +1,44 @@
+.sticky
+	position sticky
+	top var(--sticky)
+	z-index 4
+	background var(--panel)
+	backdrop-filter blur(4px)
+	--sticky 0px
+
+.sticky-content
+	.sticky
+		z-index 3
+		--sticky 40px
+	.sticky-content
+		.sticky
+			z-index 2
+			--sticky 80px
+		.sticky-content
+			.sticky
+				z-index 1
+				--sticky 80px
+			.sticky-content
+				.sticky
+					z-index 0
+					--sticky 80px
+
+hr
+	opacity .3
+
+blockquote
+	margin 16px 0
+	padding 1px 16px
+	border-left 4px solid var(--text)
+	border-radius 8px
+	background var(--panel)
+
+:not(pre):not(figcaption)>code
+	padding 0 .5ex
+	border-radius 8px
+	background var(--code-bg)
+	color var(--code)
+	word-break break-word
+
+figure
+	margin 16px 0

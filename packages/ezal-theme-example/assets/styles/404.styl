@@ -1,0 +1,31 @@
+@import '_index'
+
+body
+	display flex
+	flex-direction column
+	min-height 100vh
+	min-height 100svh
+	background:
+		linear-gradient(var(--color) 2%, #0000 0%) 0 16px / 1px 32px,
+		linear-gradient(to right, var(--color) 2%, #0000 0%) 16px / 32px,
+		var(--bg)
+	animation grid 10s infinite linear
+	--color s('color-mix(in srgb, var(--text), var(--bg) 90%)')
+
+main
+	display flex
+	flex 1
+	flex-direction column
+	justify-content center
+	align-items center
+	text-align center
+	text-wrap balance
+
+canvas
+	max-width 100%
+	width 400px
+	filter invert(1)
+
+@media (prefers-color-scheme dark)
+	canvas
+		filter invert(0)

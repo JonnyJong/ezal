@@ -1,0 +1,64 @@
+html:has(.search[open])
+	overflow hidden
+
+.search
+	margin 128px auto 16px
+	padding 0
+	width s('min(calc(100vw - 32px), 600px)')
+	border 1px solid var(--border)
+	background var(--bg)
+	&::backdrop
+		backdrop-filter blur(4px)
+
+.search-bar
+	display flex
+	button
+		width 67px
+		border 0
+		background #0000
+		font-size 20px
+
+.search-input
+	all unset
+	display block
+	flex 1
+	box-sizing border-box
+	padding 16px
+	color var(--text)
+	font 24px / 1 var(--font)
+
+.search-result
+	overflow hidden auto
+	max-height calc(100vh - 300px)
+	a
+		display block
+		padding 16px
+		border-left 4px solid #0000
+		color var(--text)
+		text-decoration none
+		&:hover
+		&:focus-visible
+		&.active
+			border-color var(--theme)
+			background var(--panel)
+
+.search-title
+	font-size 20px
+
+.search-excerpt
+	opacity .8
+	mark
+		background var(--theme-a2)
+		color var(--theme)
+
+@media (max-width 700px), (max-height 700px)
+	.search
+		margin 0
+		max-width 100vw
+		max-height 100vh
+		max-height 100svh
+		width 100vw
+		height 100vh
+	.search-result
+		max-height calc(100vh - 68px)
+		max-height calc(100svh - 68px)

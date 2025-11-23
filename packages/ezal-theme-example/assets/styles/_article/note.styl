@@ -1,0 +1,18 @@
+.note
+	@extend blockquote
+	border-color var(--note)
+	&>:first-child
+		color var(--note)
+		font-weight bold
+		i
+			margin-right 4px
+			font-weight normal
+
+.note-tip
+	--note var(--note-tip)
+
+.note-warn
+	--note var(--note-warn)
+
+.note-danger
+	--note var(--note-danger)

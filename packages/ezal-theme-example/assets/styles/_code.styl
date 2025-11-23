@@ -1,0 +1,83 @@
+.code
+	border 1px solid var(--text-a2)
+	color var(--text)
+	figcaption
+		overflow hidden
+		padding 8px
+		code
+			padding 0 8px
+			opacity .8
+	button
+		display block
+		float right
+		padding 0
+		width 24px
+		height 24px
+		border 0
+		background #0000
+		font-size 16px
+	pre
+		overflow auto
+		margin 0
+		padding 16px 0
+		tab-size 2
+		hyphens none
+
+.line
+	display inline-block
+	padding 0 16px
+	width 100%
+
+.diff
+	position relative
+	padding-left 0
+	&:before
+		padding 0 3px
+		color var(--diff)
+	&:after
+		position absolute
+		z-index -1
+		display block
+		width s('min(100%, 512px)')
+		height 100%
+		background linear-gradient(90deg, var(--diff), #0000)
+		content ''
+		opacity .2
+		inset 0
+
+.diff.remove
+	--diff var(--note-danger)
+	&:before
+		content '-'
+
+.diff.add
+	--diff var(--note-tip)
+	&:before
+		content '+'
+
+.highlighted
+	background var(--text-a2)
+
+.has-focused
+	.line:not(.focused)
+		filter blur(4px)
+		transition .1s filter
+	&:hover
+	&:focus-visible
+		.line
+			filter blur(0px)
+
+.line.warning
+	background #ff02
+
+.line.error
+	background #f002
+
+@media (prefers-color-scheme dark)
+	.code span
+		color var(--shiki-dark)
+		text-decoration var(--shiki-dark-text-decoration)
+		font-weight var(--shiki-dark-font-weight)
+		font-style var(--shiki-dark-font-style)
+	.code
+		background var(--shiki-dark-bg)

@@ -1,0 +1,96 @@
+@font-face
+	font-family 'maple mono'
+	src:
+		url('https://unpkg.com/@fontsource/maple-mono@5.2.4/files/maple-mono-latin-400-normal.woff2') format('woff2'),
+		url('https://unpkg.com/@fontsource/maple-mono@5.2.4/files/maple-mono-latin-400-normal.woff') format('woff')
+	font-display swap
+
+:root
+	--font:
+		'Noto Sans SC',
+		'WenQuanYi Micro Hei',
+		'Noto Sans',
+		'Microsoft YaHei UI',
+		'Microsoft YaHei',
+		'HarmonyOS Sans SC',
+		'MiSans',
+		'PingFang SC',
+		'Hiragino Sans GB',
+		ui-sans-serif,
+		system-ui,
+		sans-serif
+	--font-mono:
+		'Maple Mono NF CN',
+		'Maple Mono SC NF',
+		'Sarasa Term SC',
+		'LXGW WenKai Mono',
+		'JetBrains Mono',
+		'Fira Code',
+		'Cascadia Code',
+		'Source Code Pro',
+		'Monaco',
+		'SF Mono',
+		Menlo,
+		Consolas,
+		'DejaVu Sans Mono',
+		'Liberation Mono',
+		'Courier New',
+		monospace
+	--font-title 'maple mono', var(--font-mono)
+
+$colorLight = config('color.light') ? convert(config('color.light')) : #F00
+$colorDark = config('color.dark') ? convert(config('color.dark')) : #F44
+SchemeLight =
+	--theme $colorLight
+	--theme-a2 alpha($colorLight, .125)
+	--theme-a4 alpha($colorLight, .25)
+	--theme-a8 alpha($colorLight, .5)
+	--theme-ad alpha($colorLight, .8125)
+	--theme-text dark($colorLight) ? #fff : #000
+	--bg #fff
+	--text #000
+	--code #800
+	--code-bg #f001
+	--border #444
+	--text-a1 #00000010
+	--text-a2 #00000020
+	--text-a8 #00000080
+	--panel #0001
+	--note #1d80d2
+	--note-tip #01a501
+	--note-warn #b17700
+	--note-danger #bc0000
+SchemeDark =
+	--theme $colorDark
+	--theme-a2 alpha($colorDark, .125)
+	--theme-a4 alpha($colorDark, .25)
+	--theme-a8 alpha($colorDark, .5)
+	--theme-ad alpha($colorDark, .8125)
+	--theme-text dark($colorDark) ? #fff : #000
+	--bg #101010
+	--text #f0f0f0
+	--code #f88
+	--code-bg #f001
+	--border #444
+	--text-a1 #f0f0f010
+	--text-a2 #f0f0f020
+	--text-a8 #f0f0f080
+	--panel #fff1
+	--note #69bbff
+	--note-tip #4ac94a
+	--note-warn #e0e059
+	--note-danger #ec3e3e
+	// [ui-scheme='light']
+	// {SchemeLight}
+	// [ui-scheme='dark']
+	// {SchemeDark}
+	// [ui-scheme='system']
+
+:root
+	// @extend [ui-scheme='light']
+	{SchemeLight}
+
+@media (prefers-color-scheme dark)
+	// [ui-scheme='system']
+	:root
+		{SchemeDark}

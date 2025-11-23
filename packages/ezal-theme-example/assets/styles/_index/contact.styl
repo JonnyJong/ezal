@@ -1,0 +1,20 @@
+.contact
+	display flex
+	flex-wrap wrap
+	gap 8px
+	a
+		all unset
+		display block
+		width 32px
+		height 32px
+		border-radius 100%
+		text-align center
+		font 20px / 32px 'icon'
+		transition .1s background, .1s color
+		&:hover
+			background var(--color)
+			color #fff
+		&:focus-visible
+			outline 2px solid
+			background var(--color)
+			color #fff

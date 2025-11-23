@@ -1,0 +1,19 @@
+ol
+ul
+	padding-left 24px
+
+li:has(>input[type='checkbox'])
+	list-style none
+
+li>input[type='checkbox']
+	margin 0 4px -2px -22px
+	appearance none
+	&:before
+		display block
+		width 16px
+		height 16px
+		border 1px solid
+		border-radius 4px
+		content ''
+	&:checked:before
+		background var(--theme)

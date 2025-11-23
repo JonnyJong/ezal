@@ -1,0 +1,12 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"lib": ["ESNext"],
+		"jsx": "preserve",
+		"jsxFactory": "h",
+		"rootDir": "src",
+		"outDir": "dist",
+		"emitDeclarationOnly": true,
+	},
+	"include": ["./src/**/*"],
+}

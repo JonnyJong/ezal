@@ -1,0 +1,138 @@
+@import '_index'
+
+// MARK: Header
+header
+	img
+		filter blur(4px)
+		scale 1.05
+
+.cates
+	display flex
+	flex-wrap wrap
+	font-weight bold
+	gap 4px 16px
+
+.tag
+	&:before
+		content '#'
+		opacity .5
+
+.article-info
+	display flex
+	flex-wrap wrap
+	gap 8px
+	:before
+		margin-right 4px
+
+// MARK: Pagination & Related
+// .related
+// .related-title
+.pagination
+	@extend main
+
+.pagination
+	display flex
+	gap 4px
+	a
+		display flex
+		align-items center
+		padding 16px
+		border 1px solid var(--border)
+		border-radius 8px
+		color var(--text)
+		text-decoration none
+		text-wrap balance
+		transition .1s color, .1s border
+		gap 8px
+		&:hover
+			border-color var(--theme)
+			color var(--theme)
+	i
+		display inline-block
+	.next
+		justify-content right
+		text-align right
+
+// MARK: Main
+main
+	display flex
+	flex-direction row-reverse
+
+article
+	flex 1
+	padding 8px
+	width 0
+	text-wrap pretty
+	word-break break-all
+	word-break break-word
+
+aside
+	position sticky
+	top 32px
+	flex 0 0 auto
+	overflow hidden auto
+	max-height calc(100vh - 32px)
+	width 250px
+	height max-content
+
+.toc
+	li
+		list-style none
+	ol
+		position relative
+		&:before
+			position absolute
+			top 0
+			left 10px
+			display block
+			width 1px
+			height 100%
+			background var(--text-a2)
+			content ''
+	a
+		display block
+		display -webkit-box
+		overflow hidden
+		padding 5px
+		color var(--text)
+		text-decoration none
+		text-overflow ellipsis
+		line-height 1.5
+		-webkit-line-clamp 3
+		-webkit-box-orient vertical
+	a:hover
+	.active
+		color var(--theme)
+
+@import '_article/other'
+@import '_article/heading'
+@import '_article/image'
+@import '_article/table'
+@import '_article/list'
+@import '_article/footnote'
+@import '_article/tabs'
+@import '_article/note'
+@import '_article/fold'
+@import '_article/kbd'
+@import '_article/links'
+
+// MARK: Mobile
+nav .toc
+	position absolute
+	top 8px + 32px + 32px + 8px
+	display none
+	overflow hidden auto
+	margin-top 0
+	max-height calc(100vh - 96px)
+	width 100%
+	overscroll-behavior contain
+
+@media (max-width 700px)
+	aside
+		display none
+	nav .toc
+		display block
+	.nav-show
+		height calc(100vh - 16px)
+	.pagination
+		flex-direction column

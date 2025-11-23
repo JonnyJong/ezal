@@ -1,0 +1,59 @@
+nav
+	position fixed
+	top 8px
+	right 0
+	left 0
+	z-index 100
+	display flex
+	overflow hidden
+	margin auto
+	padding 4px
+	width s('min(1000px, calc(100vw - 8px))')
+	height 32px + 8px
+	border 1px solid #0000
+	border-radius 12px
+	line-height 1
+	transition .1s
+
+#search
+#nav
+	width 32px
+	height 32px
+	border none
+	background #0000
+	font-size 16px
+
+#nav
+	display none
+
+.nav
+	display flex
+	margin 0
+	padding 0
+	li
+		display block
+		padding 0
+	a
+		display block
+		padding 8px
+
+.site
+	padding 0 8px
+	height 32px
+	font-weight bold
+	font-family var(--font-title)
+	line-height 32px
+
+.nav-hide
+	top -42px
+
+@media (max-width 700px)
+	#nav
+		display block
+	.nav
+		position absolute
+		top 8px + 32px
+	.nav-show
+		height 8px + 32px + 32px + 8px
+		&.nav-toc
+			height calc(100vh - 16px)
