@@ -27,14 +27,16 @@ function initTags() {
 			size: Number(a.dataset.size),
 			node: a,
 		}));
+		const totalWeight =
+			words.reduce((prev, { size }) => prev + 1 + size * 0.1, 0) * 7000;
 		const width = container.clientWidth;
-		const height = Math.max(100, (words.length * 7000) / width);
+		const height = Math.max(100, totalWeight / width);
 		const cx = width / 2;
 		const cy = height / 2;
 		layout = cloud<Tag>()
 			.size([width, height])
 			.words(words)
-			.padding(10)
+			.padding(4)
 			.rotate(0)
 			.fontSize((d) => d.size ** 2 + 16)
 			.on('end', (words) => {
@@ -97,7 +99,7 @@ function initCategories() {
 
 	const doLayout = () => {
 		const width = container.clientWidth;
-		const height = Math.max(100, (totalSize * 30000) / (width / 2 + 400));
+		const height = Math.max(100, (totalSize * 30000) / (width / 2 + 400)) + 32;
 		const layout = treemap<CategoryNode>()
 			.tile(treemapSquarify)
 			.size([width, height])
@@ -116,11 +118,11 @@ function initCategories() {
 			if (!node) continue;
 			node.classList.add('link');
 			node.style.left = `${x0}px`;
-			node.style.top = `${y0}px`;
+			node.style.top = `${y0 - 32}px`;
 			node.style.width = `${x1 - x0}px`;
 			node.style.height = `${y1 - y0}px`;
 		}
-		container.style.height = `${height}px`;
+		container.style.height = `${height - 32}px`;
 		container.classList.add('ready');
 	};
 
