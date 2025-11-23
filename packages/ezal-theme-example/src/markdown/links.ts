@@ -46,7 +46,9 @@ export const links: CommonPlugin<'block', LinksParsed> = {
 		const html = links.map<string>(({ href, icon, title, subtitle }) => {
 			const html: string[] = [$('i', { class: ['icon-link'] })];
 			if (icon) {
-				html.push($('img', { class: 'rounded', attr: { src: icon, alt: title } }));
+				html.push(
+					$('img', { class: 'rounded', attr: { src: URL.for(icon), alt: title } }),
+				);
 			}
 			html.push($('div', { class: 'link-title', content: title }));
 			counter.count(title);
