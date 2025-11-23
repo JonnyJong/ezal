@@ -152,12 +152,13 @@ export function initFootnote() {
 }
 
 function display(image: HTMLImageElement) {
-	const { top, left, width } = image.getBoundingClientRect();
-	const boxFrame = { background: '#0000' };
-	const frame = { top: `${top}px`, left: `${left}px`, width: `${width}px` };
-	const defaultDuration: number = 100;
+	const { top, left, width, height } = image.getBoundingClientRect();
 	const naturalWidth = image.naturalWidth;
 	const naturalHeight = image.naturalHeight;
+	const realWidth = (naturalWidth / naturalHeight) * height;
+	const realLeft = left + (width - realWidth) / 2;
+	const boxFrame = { background: '#0000' };
+	const defaultDuration: number = 100;
 	let currentWidth = 0;
 	let currentHeight = 0;
 	const box = $new('div');
@@ -184,7 +185,19 @@ function display(image: HTMLImageElement) {
 	hammer.get('pan').recognizeWith('pinch');
 
 	const hide = () => {
-		img.animate({ ...frame, scale: 1, translate: '0px 0px' }, defaultDuration);
+		const { top, left, width, height } = image.getBoundingClientRect();
+		const realWidth = (naturalWidth / naturalHeight) * height;
+		const realLeft = left + (width - realWidth) / 2;
+		img.animate(
+			{
+				top: `${top}px`,
+				left: `${realLeft}px`,
+				width: `${realWidth}px`,
+				scale: 1,
+				translate: '0px 0px',
+			},
+			defaultDuration,
+		);
 		const animation = box.animate(boxFrame, defaultDuration);
 		animation.onfinish = () => {
 			box.remove();
@@ -231,7 +244,19 @@ function display(image: HTMLImageElement) {
 	resize();
 	doc.body.append(box);
 	box.animate([boxFrame, {}], defaultDuration).play();
-	img.animate([frame, {}], { duration: 300, easing: 'ease-in-out' }).play();
+	img
+		.animate(
+			[
+				{
+					top: `${top}px`,
+					left: `${realLeft}px`,
+					width: `${realWidth}px`,
+				},
+				{},
+			],
+			{ duration: 300, easing: 'ease-in-out' },
+		)
+		.play();
 	image.style.opacity = '0';
 
 	let dragging = false;
