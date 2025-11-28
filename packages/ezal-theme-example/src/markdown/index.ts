@@ -61,7 +61,7 @@ export async function markdownPageHandler(): Promise<PageHandler> {
 		await codeblock(),
 		footnote,
 		tex,
-		tabs as any,
+		tabs,
 		note,
 		fold,
 		kbd,

@@ -22,7 +22,7 @@
 		"d3-hierarchy": "^3.1.2",
 		"esbuild": "^0.27.0",
 		"ezal-layout": "workspace:^",
-		"ezal-markdown": "^0.4.4",
+		"ezal-markdown": "0.4.5",
 		"feed": "^5.1.0",
 		"hammerjs": "^2.0.8",
 		"indexnow": "^0.1.0",

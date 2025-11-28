@@ -116,8 +116,8 @@ importers:
         specifier: workspace:^
         version: link:../ezal-layout
       ezal-markdown:
-        specifier: ^0.4.4
-        version: 0.4.4(yaml@2.8.1)
+        specifier: 0.4.5
+        version: 0.4.5(yaml@2.8.1)
       feed:
         specifier: ^5.1.0
         version: 5.1.0
@@ -1017,8 +1017,8 @@ packages:
     resolution: {integrity: sha512-XYfuKMvj4O35f/pOXLObndIRvyQ+/+6AhODh+OKWj9S9498pHHn/IMszH+gt0fBCRWMNfk1ZSp5x3AifmnI2vg==}
     engines: {node: '>=6'}
 
-  ezal-markdown@0.4.4:
-    resolution: {integrity: sha512-qEdF69AWHVOFUzNiREiuG0WudlC/mp2kkLNPT0bkbwoUfn2drhdqUzb1Zjm1pk9+vLkY8yMzaSwgGASl3dXFdQ==}
+  ezal-markdown@0.4.5:
+    resolution: {integrity: sha512-PQ6fVBzg9WJjuKMzO1znTiaWwUFPZphWMhljXetwy8/jcG8mZptFAvqZaXjOj1z8X9wGnAXF9cOwhE+B64G93g==}
     engines: {node: '>=22', pnpm: '>=10'}
     peerDependencies:
       yaml: ^2.8.0
@@ -2214,7 +2214,7 @@ snapshots:
 
   expand-template@2.0.3: {}
 
-  ezal-markdown@0.4.4(yaml@2.8.1):
+  ezal-markdown@0.4.5(yaml@2.8.1):
     dependencies:
       entities: 7.0.0
     optionalDependencies:
