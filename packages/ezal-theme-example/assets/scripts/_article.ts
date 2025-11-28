@@ -21,52 +21,54 @@ export function initTabs() {
 }
 
 export function initToc() {
+	const docE = doc.documentElement;
 	const toc = [...$$('aside a')];
 	if (toc.length === 0) return;
 	const headings = [...$$('h2,h3,h4,h5,h6', $('article')!)];
-	const docE = doc.documentElement;
-
-	function getIndex(): number {
-		if (docE.scrollTop < 100) return 0;
-		if (docE.scrollTop + innerHeight >= docE.scrollHeight - 5) {
-			return toc.length - 1;
-		}
-
-		const triggerLine = innerHeight / 3;
-		for (const [i, heading] of headings.entries()) {
-			const { top } = heading.getBoundingClientRect();
-			if (top > triggerLine) return Math.max(0, i - 1);
-		}
-		return toc.length - 1;
-	}
-
-	handle(doc, 'scroll', () => {
-		const index = getIndex();
-		const target = toc[index];
-
-		if (target.classList.contains('active')) return;
-		for (const element of $$('aside .active')) {
-			element.classList.remove('active');
-		}
-		target.classList.add('active');
-		target.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-	});
 
 	const nav = $<HTMLElement>('nav')!;
-	const mobileToc = $('.toc')!.cloneNode(true) as HTMLElement;
-	nav.append(mobileToc);
+	const mobileTocContainer = $('.toc')!.cloneNode(true) as HTMLElement;
+	const mobileToc = [...$$('a', mobileTocContainer)];
+	nav.append(mobileTocContainer);
 	const height = () => {
 		nav.style.maxHeight = `${nav.scrollHeight}px`;
 	};
+	const move = (event: MouseEvent, items: Element[]) => {
+		const { target } = event;
+		if ((target as Element).tagName !== 'A') return;
+		event.preventDefault();
+		nav.classList.remove('nav-show');
+		const heading = headings[items.indexOf(target as Element)];
+		if (!heading) return;
+		const { top } = heading.getBoundingClientRect();
+		docE.scroll(0, top - 50 + docE.scrollTop);
+	};
 	handle(window, 'resize', height);
-	for (const a of $$('a', mobileToc)) {
-		handle(a, 'click', async () => {
-			nav.classList.remove('nav-show');
-			await sleep(10);
-			nav.classList.add('nav-hide');
-		});
-	}
+	handle(mobileTocContainer, 'click', (event: MouseEvent) =>
+		move(event, mobileToc),
+	);
+	handle($('aside')!, 'click', (event: MouseEvent) => move(event, toc));
 	height();
+
+	const observer = new IntersectionObserver((entries) => {
+		for (const {
+			target,
+			isIntersecting,
+			boundingClientRect: { top },
+		} of entries) {
+			const index = headings.indexOf(target);
+			if (isIntersecting) {
+				toc[index].classList.add('active');
+				toc[index - 1]?.classList.add('active');
+				continue;
+			}
+			if (top > 0) toc[index].classList.remove('active');
+			if (top < 0) toc[index - 1]?.classList.remove('active');
+		}
+	});
+	for (const heading of headings) {
+		observer.observe(heading);
+	}
 }
 
 export function initCodeblock(scope: ParentNode = doc) {
