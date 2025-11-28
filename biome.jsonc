@@ -8,9 +8,11 @@
 	"files": {
 		"ignoreUnknown": true,
 		"includes": [
-			"packages/**/*.ts",
-			"packages/**/*.tsx",
-			"packages/**/*.json"
+			"**/*.ts",
+			"**/*.tsx",
+			"**/*.json",
+			"!node_modules",
+			"!dist"
 		]
 	},
 	"formatter": {
@@ -204,6 +206,12 @@
 			"unsafeParameterDecoratorsEnabled": true
 		},
 		"jsxRuntime": "reactClassic",
-		"globals": ["JSX", "RawHTML", "Doc", "Container", "context"]
+		"globals": [
+			"JSX",
+			"RawHTML",
+			"Doc",
+			"Container",
+			"context"
+		]
 	}
 }
