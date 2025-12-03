@@ -5,6 +5,7 @@ import {
 	type Server,
 	type ServerResponse,
 } from 'node:http';
+import { type NetworkInterfaceInfo, networkInterfaces } from 'node:os';
 import path from 'node:path';
 import { Readable } from 'node:stream';
 import { inspect } from 'node:util';
@@ -43,6 +44,8 @@ const SSE_HEADERS: OutgoingHttpHeaders = {
 	'cache-control': 'no-cache',
 	connection: 'keep-alive',
 };
+
+const UNSPECIFIED_ADDRESSES = new Set(['0.0.0.0', '::']);
 
 const logger = new Logger('server');
 
@@ -142,9 +145,9 @@ function handleSSE<
 	res.writeHead(200, SSE_HEADERS);
 	logger.log(
 		'Initializing SSE connection...',
-		req.socket.remoteAddress,
-		'<->',
 		req.socket.localAddress,
+		'[local] --> [remote]',
+		req.socket.remoteAddress,
 	);
 	res.write('data: {"type":"connect"}\n\n');
 	clients.add(res);
@@ -208,6 +211,25 @@ async function requestHandle<
 	}
 }
 
+function printAddresses(port: number, root: string) {
+	const addresses = Object.values(networkInterfaces())
+		.filter((v): v is NetworkInterfaceInfo[] => !!v)
+		.flat();
+	let output = 'Ready on:';
+	const push = (host: string) => {
+		output += `\n\thttp://${host}:${port}${root}`;
+	};
+	push('localhost');
+	push('127.0.0.1');
+	push('[::1]');
+	for (const address of addresses) {
+		if (address.internal) continue;
+		if (address.address.startsWith('fe80')) continue;
+		push(address.family === 'IPv4' ? address.address : `[${address.address}]`);
+	}
+	logger.log(output);
+}
+
 export function initServer() {
 	server = createServer(requestHandle);
 	server.on('error', (error) => {
@@ -219,6 +241,10 @@ export function initServer() {
 	const port = config?.port ?? 8080;
 	const host = config?.host ?? 'localhost';
 	const root = getConfig().site.root ?? '/';
+	if (UNSPECIFIED_ADDRESSES.has(host)) {
+		server.listen(port, () => printAddresses(port, root));
+		return;
+	}
 	server.listen(port, host, () => {
 		logger.log(`Ready on http://${host}:${port}${root}`);
 	});
