@@ -13,6 +13,7 @@ import { image } from './image';
 import { kbd } from './kbd';
 import { link } from './link';
 import { links } from './links';
+import { mermaid } from './mermaid';
 import { note } from './note';
 import { table } from './table';
 import { tabs } from './tabs';
@@ -68,6 +69,7 @@ export async function markdownPageHandler(): Promise<PageHandler> {
 		links,
 		setext,
 		link,
+		mermaid,
 	);
 	return {
 		exts: '.md',

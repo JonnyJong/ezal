@@ -115,6 +115,8 @@ export interface ThemeConfig {
 		walineCSS?: string;
 		/** @default 'https://unpkg.com/@waline/client@v3/dist/waline.js' */
 		walineJS?: string;
+		/** @default 'https://unpkg.com/mermaid@11/dist/mermaid.esm.min.mjs' */
+		mermaid?: string;
 	};
 	/** HTML 头部插入内容 */
 	inject?: string;

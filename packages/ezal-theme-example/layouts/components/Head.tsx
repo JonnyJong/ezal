@@ -32,6 +32,31 @@ const enableComment =
 const waline =
 	theme.cdn?.walineCSS ?? 'https://unpkg.com/@waline/client@v3/dist/waline.css';
 
+const mermaid =
+	theme.cdn?.mermaid ?? 'https://unpkg.com/mermaid@11/dist/mermaid.esm.min.mjs';
+const mermaidScript =
+	`import mermaid from '${mermaid}';` +
+	// 'window.mermaid = mermaid;' +
+	'mermaid.initialize({startOnLoad:false});' +
+	`document.addEventListener('DOMContentLoaded', ()=>{` +
+	`const media=window?.matchMedia('(prefers-color-scheme: dark)');` +
+	`const theme=()=>media?.matches?'dark':'neutral';` +
+	'const charts=new Map();' +
+	`for(const e of document.querySelectorAll('pre.mermaid')){` +
+	'charts.set(e,e.textContent);' +
+	'}'+
+	'const render=()=>{'+
+	'for(const[e,t]of charts){'+
+	'e.textContent=t;'+
+	`e.removeAttribute('data-processed');`+
+	'}' +
+	'mermaid.initialize({theme:theme()});' +
+	'mermaid.run();' +
+	'};'+
+	'render();' +
+	'media?.addListener(render);' +
+	'})';
+
 export default (slot?: any) => (
 	<head>
 		{/* 基本 */}
@@ -114,6 +139,11 @@ export default (slot?: any) => (
 		<script src={URL.for(`scripts/${page.layout}.js`)} async defer></script>
 		{'renderedData' in page && page.renderedData.shared.codeblock ? (
 			<link rel="stylesheet" href={URL.for('styles/code.css')} />
+		) : null}
+		{'renderedData' in page && page.renderedData.shared.mermaid ? (
+			<script type="module">
+				<RawHTML html={mermaidScript} />
+			</script>
 		) : null}
 		{/* 额外 */}
 		{slot}

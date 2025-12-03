@@ -1,6 +1,6 @@
 ---
 title: Ezal Framework Usage and Development Guide
-date: 2025/11/23 12:00:07
+date: 2025/11/23 12:40:01
 updated: 2025/11/23
 category: Documentation
 tag: Documentation

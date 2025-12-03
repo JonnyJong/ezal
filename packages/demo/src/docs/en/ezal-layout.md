@@ -1,6 +1,6 @@
 ---
 title: ezal-layout
-date: 2025/11/23 12:00:01
+date: 2025/11/23 12:10:01
 updated: 2025/11/23
 category: Documentation
 tag: Documentation

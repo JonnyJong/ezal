@@ -42,3 +42,11 @@ blockquote
 
 figure
 	margin 16px 0
+
+.mermaid
+	&:not(:has(svg))
+		opacity 0
+	// overflow auto
+	text-align center
+	svg
+		height auto
