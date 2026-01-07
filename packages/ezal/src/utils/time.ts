@@ -30,7 +30,12 @@ function from(timestamp: number, timezone?: string): Temporal.ZonedDateTime {
 
 //#region parseDate
 
-const CHRONO_PARSERS: Record<string, (input: string) => Date | null> = {
+type ChronoParser = (
+	input: string,
+	ref?: chrono.ParsingReference,
+) => Date | null;
+
+const CHRONO_PARSERS: Record<string, ChronoParser> = {
 	en: chrono.en.parseDate,
 	de: chrono.de.parseDate,
 	fr: chrono.fr.parseDate,
@@ -41,7 +46,7 @@ const CHRONO_PARSERS: Record<string, (input: string) => Date | null> = {
 	ru: chrono.ru.parseDate,
 	es: chrono.es.parseDate,
 	uk: chrono.uk.parseDate,
-	it: chrono.it.parseDate,
+	it: (input, ref) => chrono.it.parseDate(input, ref?.instant),
 	sv: chrono.sv.parseDate,
 };
 
@@ -100,16 +105,52 @@ function parseMilliseconds(input: string): Temporal.ZonedDateTime | null {
 	}
 }
 
+const PATTERN_DIFF = /(\d+)\s*(d|day|days|m|month|months|y|year|years)/gi;
+function extractDiff(
+	input: string,
+): [days: number, months: number, years: number] {
+	let days = 0;
+	let months = 0;
+	let years = 0;
+	for (const [_, num, type] of input.matchAll(PATTERN_DIFF)) {
+		const d = Number(num);
+		if (!Number.isFinite(d)) continue;
+		switch (type[0].toLowerCase()) {
+			case 'd':
+				days += d;
+				continue;
+			case 'm':
+				months += d;
+				continue;
+			case 'y':
+				years += d;
+				continue;
+		}
+	}
+	return [days, months, years];
+}
+
+function parseDiff(
+	input: string,
+	ref?: Temporal.ZonedDateTime,
+): Temporal.ZonedDateTime | null {
+	if (!ref) return null;
+	const [days, months, years] = extractDiff(input);
+	if (days + months + years === 0) return null;
+	const duration = Temporal.Duration.from({ days, months, years });
+	return ref.add(duration);
+}
+
 function findTimeZone(input: string): string | undefined {
 	return input.match(PATTERN_TIMEZONE)?.[0];
 }
 
-let chronoFallbacks: ((input: string) => Date | null)[] | undefined;
+let chronoFallbacks: ChronoParser[] | undefined;
 
-function getChronoFallbacks(): ((input: string) => Date | null)[] {
+function getChronoFallbacks(): ChronoParser[] {
 	if (chronoFallbacks) return chronoFallbacks;
 	const language = getConfig().site.language.split('-', 1)[0];
-	const fallbacks: ((input: string) => Date | null)[] = [];
+	const fallbacks: ChronoParser[] = [];
 	if (language in CHRONO_PARSERS) {
 		fallbacks.push(CHRONO_PARSERS[language]);
 	}
@@ -121,7 +162,10 @@ function getChronoFallbacks(): ((input: string) => Date | null)[] {
 	return fallbacks;
 }
 
-function parseDate(input: any): Temporal.ZonedDateTime | null {
+function parseDate(
+	input: any,
+	ref?: Temporal.ZonedDateTime,
+): Temporal.ZonedDateTime | null {
 	if (!input || typeof input === 'object') return null;
 	if (typeof input === 'number') {
 		input = input.toString();
@@ -140,11 +184,17 @@ function parseDate(input: any): Temporal.ZonedDateTime | null {
 		parseMilliseconds(input);
 	if (numDate) return numDate;
 	let date: Date | null = null;
+	let chronoRef: chrono.ParsingReference | undefined;
+	if (ref)
+		chronoRef = {
+			instant: new Date(ref.epochMilliseconds),
+			timezone: ref.timeZoneId,
+		};
 	for (const parser of getChronoFallbacks()) {
-		date = parser(input);
+		date = parser(input, chronoRef);
 		if (date) break;
 	}
-	if (!date) return null;
+	if (!date) return parseDiff(input, ref);
 	return from(date.getTime(), findTimeZone(input));
 }
 
