@@ -1,7 +1,8 @@
-import { Article, URL } from 'ezal';
+import { Article, Time, URL } from 'ezal';
 import type { Context } from 'ezal-markdown';
 import base from './base';
 import Image from './components/Image';
+import { Temporal } from '@js-temporal/polyfill';
 
 const { theme } = context;
 const page = context.page as Article;
@@ -90,6 +91,18 @@ if (related.length > 0) {
 	);
 } */
 
+let outdateTemplate: JSX.Element | undefined;
+if (page.data.outdate) {
+	const outdate = Time.parseDate(page.data.outdate.date, page.updated);
+	if (outdate) {
+		const outdated = outdate.epochMilliseconds <= Temporal.Now.zonedDateTimeISO().epochMilliseconds;
+		const classList = ['article-outdate'];
+		if (outdated) classList.push('article-outdate-show');
+		const time = outdate.toString({ timeZoneName: 'never' });
+		outdateTemplate = <div class={classList} data-time={time}>{page.data.outdate.message}</div>
+	}
+}
+
 export default base(
 	<header>
 		{page.data.cover ? <Image url={page.data.cover} alt={page.title} /> : null}
@@ -123,6 +136,7 @@ export default base(
 	<main>
 		{toc}
 		<article>
+			{outdateTemplate}
 			<RawHTML html={page.content} />
 		</article>
 	</main>,

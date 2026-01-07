@@ -116,6 +116,13 @@ aside
 @import '_article/kbd'
 @import '_article/links'
 
+.article-outdate
+	@extend blockquote
+	padding 16px
+	border-color var(--note-warn)
+	&:not(.article-outdate-show)
+		display none
+
 // MARK: Mobile
 nav .toc
 	position absolute
