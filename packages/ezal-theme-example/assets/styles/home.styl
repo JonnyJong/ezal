@@ -12,8 +12,22 @@ header
 .home-title
 	font 28px var(--font-title)
 
+@keyframes home-logo
+	100%
+		opacity var(--e-o)
+		x var(--e-p)
+		y var(--e-p)
+
 .home-logo
 	max-width 350px
+	for i in 1 .. 9
+		&>:nth-child({i + 1})
+			opacity 1 - i * .1
+			animation 1s home-logo linear infinite
+			--e-o .9 - i * .1
+			--e-p 16px * i
+			x 16px * i - 16px
+			y 16px * i - 16px
 
 @keyframes indicator
 	0%
