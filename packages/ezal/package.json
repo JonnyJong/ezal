@@ -2,7 +2,7 @@
 	"name": "ezal",
 	"description": "A simple, asynchronous blog framework",
 	"version": "3.0.2",
-	"author": "jonnyjong",
+	"author": "jonnyjonny",
 	"license": "MIT",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
