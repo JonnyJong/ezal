@@ -1,13 +1,6 @@
 import path from 'node:path';
-import {
-	type LayoutRenderer as EzalLayoutRenderer,
-	getConfig,
-	type LayoutCompiled,
-	type LayoutConfig,
-	normalizeError,
-	type PromiseOr,
-} from 'ezal';
-import { compile, type LayoutRenderer } from 'ezal-layout';
+import { getConfig, type LayoutConfig } from 'ezal';
+import { createCompiler } from 'ezal-layout';
 import mime from 'mime-types';
 import type { Context } from '../layouts/context';
 import { getThemeConfig } from './config';
@@ -21,42 +14,21 @@ const EXTERNAL_MODULES = Object.fromEntries(
 	]),
 );
 
-function createRenderer(template: LayoutRenderer) {
-	return (page: Context['page']): PromiseOr<string | Error> => {
-		const { site } = getConfig();
-		const theme = getThemeConfig();
-		const context: Context = {
-			page,
-			site,
-			theme,
-			getImageInfo,
-			mime,
-			compareByDate,
-		};
-		try {
-			return template(context);
-		} catch (error) {
-			return normalizeError(error);
-		}
-	};
-}
-
-async function compiler(src: string): Promise<LayoutCompiled | Error> {
-	try {
-		const { renderer: template, dependencies } = await compile(
-			src,
-			EXTERNAL_MODULES,
-		);
-		return {
-			renderer: createRenderer(template) as EzalLayoutRenderer,
-			dependencies,
-		};
-	} catch (error) {
-		return normalizeError(error);
-	}
-}
-
 export const layoutConfig: LayoutConfig = {
 	root: path.join(__dirname, '../layouts'),
-	compiler,
+	compiler: createCompiler({
+		context(page): Context {
+			const { site } = getConfig();
+			const theme = getThemeConfig();
+			return {
+				page: page as Context['page'],
+				site,
+				theme,
+				getImageInfo,
+				mime,
+				compareByDate,
+			};
+		},
+		external: EXTERNAL_MODULES,
+	}),
 };
