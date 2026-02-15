@@ -1,6 +1,7 @@
 {
 	"scripts": {
 		"build": "rolldown -c rolldown.config.ts",
+		"dev": "pnpm -F demo run serve",
 		"prepublish": "pnpm run build",
 		"publish:ezal": "pnpm publish -r --filter ezal --access public",
 		"publish:ezal-layout": "pnpm publish -r --filter ezal-layout --access public",

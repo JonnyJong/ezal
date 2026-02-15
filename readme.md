@@ -18,8 +18,7 @@ pnpm build
 ## Dev
 
 ```bash
-cd packages/demo
-pnpm run serve
+pnpm run dev
 ```
 
 

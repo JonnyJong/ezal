@@ -18,8 +18,7 @@ pnpm build
 ## 开发
 
 ```bash
-cd packages/demo
-pnpm run serve
+pnpm run dev
 ```
 
 ## 文档
