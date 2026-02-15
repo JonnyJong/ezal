@@ -7,8 +7,8 @@ const sharedOptions: RolldownOptions = {
 };
 
 const TSC_ROOT = path.join(
-	import.meta.dirname,
-	'packages/ezal/node_modules/typescript/lib/tsc.js',
+	__dirname,
+	'node_modules/.pnpm/typescript@5.9.3/node_modules/typescript/lib/tsc.js',
 );
 
 function tscAfter(mod: string): Plugin {
