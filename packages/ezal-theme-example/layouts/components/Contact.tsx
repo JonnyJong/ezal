@@ -6,9 +6,12 @@ export default (options?: { style?: JSX.IntrinsicAttributes['style'] }) => (
 			<a
 				class={`icon-${icon}`}
 				href={URL.for(url)}
+				aria-label={name}
 				title={name}
 				style={{ $color: color }}
-			></a>
+			>
+				<div class="sr-only">{name}</div>
+			</a>
 		))}
 	</div>
 );
