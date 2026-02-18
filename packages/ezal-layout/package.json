@@ -1,7 +1,7 @@
 {
 	"name": "ezal-layout",
 	"description": "A simple, asynchronous HTML preprocessor with JSX/TSX",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"author": "jonnyjong",
 	"license": "MIT",
 	"main": "dist/index.js",
