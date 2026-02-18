@@ -258,7 +258,8 @@ function broadcast(message: any) {
 
 export function broadcastUpdate(url: string) {
 	logger.debug(INFO.UPDATE, url);
-	const root = getConfig().site.root;
+	if (clients.size === 0) return;
+	const root = getConfig()?.site.root;
 	if (root) url = URL.join(root, url);
 	broadcast({ type: 'update', url });
 }
