@@ -53,10 +53,11 @@ export async function preScan() {
 }
 
 async function output(route: Route) {
-	const out = path.join(getConfig().outDir, route.dist);
 	const content = await route.getContent();
+	const dist = route.dist;
+	const out = path.join(getConfig().outDir, dist);
 	await fs.writeFile(out, content);
-	logger.log('\t', route.dist);
+	logger.log('\t', dist);
 }
 
 export async function build() {
