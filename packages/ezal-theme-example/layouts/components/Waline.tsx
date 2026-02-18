@@ -15,8 +15,12 @@ export default () => {
 		theme.cdn?.walineJS ?? 'https://unpkg.com/@waline/client@v3/dist/waline.js';
 	const script = `import{init}from'${module}';init(${JSON.stringify(options)})`;
 
-	return <Container>
-		<div id="waline" class="wrap"></div>
-		<script type="module" defer><RawHTML html={script}/></script>
-	</Container>;
+	return (
+		<>
+			<div id="waline" class="wrap"></div>
+			<script type="module" defer>
+				<RawHTML html={script} />
+			</script>
+		</>
+	);
 };

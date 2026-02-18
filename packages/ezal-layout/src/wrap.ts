@@ -14,12 +14,22 @@ export default function wrap(
 		'Doc',
 		'RawHTML',
 		'Container',
+		'Fragment',
 		content,
 	);
 	const require = (name: string) => external?.[name];
 	return async (context) => {
 		const module: { exports: Record<string, any> } = { exports: {} };
-		await template(context, require, module, h, Doc, RawHTML, Container);
+		await template(
+			context,
+			require,
+			module,
+			h,
+			Doc,
+			RawHTML,
+			Container,
+			Container,
+		);
 		let result = module.exports.default;
 		if (typeof result === 'function') result = await result();
 		return render(result);

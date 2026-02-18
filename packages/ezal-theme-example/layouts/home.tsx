@@ -12,11 +12,11 @@ const current = pages.indexOf(page);
 const slogan = home?.slogan ? (
 	<RawHTML html={home.slogan} />
 ) : (
-	<Container>
+	<>
 		{'Hi there!👋'}
 		<br />
 		{`I'm ${context.site.author}.`}
-	</Container>
+	</>
 );
 
 const logo = home?.logo ? (
