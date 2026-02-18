@@ -44,15 +44,15 @@ const mermaidScript =
 	'const charts=new Map();' +
 	`for(const e of document.querySelectorAll('pre.mermaid')){` +
 	'charts.set(e,e.textContent);' +
-	'}'+
-	'const render=()=>{'+
-	'for(const[e,t]of charts){'+
-	'e.textContent=t;'+
-	`e.removeAttribute('data-processed');`+
+	'}' +
+	'const render=()=>{' +
+	'for(const[e,t]of charts){' +
+	'e.textContent=t;' +
+	`e.removeAttribute('data-processed');` +
 	'}' +
 	'mermaid.initialize({theme:theme()});' +
 	'mermaid.run();' +
-	'};'+
+	'};' +
 	'render();' +
 	'media?.addListener(render);' +
 	'})';

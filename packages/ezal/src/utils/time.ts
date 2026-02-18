@@ -198,7 +198,6 @@ function parseDate(
 	return from(date.getTime(), findTimeZone(input));
 }
 
-// biome-ignore lint/style/useNamingConvention: Namespace
 export const Time = {
 	now,
 	timezone,
